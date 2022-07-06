@@ -1,0 +1,26 @@
+{
+  "name": "stakingv2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/solidoracle/stakingv2.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/solidoracle/stakingv2/issues"
+  },
+  "homepage": "https://github.com/solidoracle/stakingv2#readme",
+  "devDependencies": {
+    "hardhat": "^2.9.9"
+  }
+}
