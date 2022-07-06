@@ -69,9 +69,9 @@ describe('Staking', function(){
 
             expect(position.positionId).to.equal(0)
             expect(position.walletAddress).to.equal('0x0000000000000000000000000000000000000000')
-            expect(position.createDate).to.equal(0)
+            expect(position.createdDate).to.equal(0)
             expect(position.unlockDate).to.equal(0)
-            expect(position.percentageInterest).to.equal(0)
+            expect(position.percentInterest).to.equal(0)
             expect(position.plegWeiStaked).to.equal(0)
             expect(position.plegInterest).to.equal(0)
             expect(position.open).to.equal(false)
@@ -86,10 +86,10 @@ describe('Staking', function(){
             position = await staking.positions(0)
 
             expect(position.positionId).to.equal(0)
-            expect(position.walletAddress).to.equal(singer1.address)
-            expect(position.createDate).to.equal(block.timestamp)
+            expect(position.walletAddress).to.equal(signer1.address)
+            expect(position.createdDate).to.equal(block.timestamp)
             expect(position.unlockDate).to.equal(block.timestamp + (86400 * 90)) //86,4k is the seconds in a day
-            expect(position.percentageInterest).to.equal(1000)
+            expect(position.percentInterest).to.equal(1000)
             expect(position.plegWeiStaked).to.equal(transferAmount)
             expect(position.plegInterest).to.equal( ethers.BigNumber.from(transferAmount).mul(1000).div(10000) ) // converting transfer amount into  a big number. calculate it ourselves and compare it to what is stored in the position
             expect(position.open).to.equal(true)
