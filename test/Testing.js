@@ -111,8 +111,32 @@ describe('Staking', function(){
             expect(await staking.positionIdsByAddress(signer1.address, 1)).to.equal(1)  // we're accessing a public variable directly (not a method that returns the value) 
             expect(await staking.positionIdsByAddress(signer2.address, 0)).to.equal(2)
         })
+    })
 
+    describe('modifyLockPeriods', function () {
+        describe('owner', function () {
+            it('should create a new lock period', async function() {
+                await staking.connect(signer1).modifyLockPeriods(100, 999)
 
+                expect(await staking.tiers(100)).to.equal(999)
+                expect(await staking.lockPeriods(3)).to.equal(100)
+            })
+            it('should modify an existing lock period', async function() {
+                await staking.connect(signer1).modifyLockPeriods(30, 150)
+
+                expect(await staking.tiers(30)).to.equal(150)
+            })
+        })
+
+        describe('non-owner', function () {
+            it('revers', async function () {
+                expect(
+                    staking.connect(signer2).modifyLockPeriods(100, 999)
+                ).to.be.revertedWith(
+                    'Only owner may modify staking periods')
+            })
+
+        })
 
     })
 
