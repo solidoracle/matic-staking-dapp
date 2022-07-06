@@ -69,7 +69,7 @@ contract Staking {
 
     // pure because it doesn't touch the blockchain
     function calculateInterest(uint basisPoints, uint numDays, uint plegWeiAmount) private pure returns(uint) {
-        return basisPoints * plegWeiAmount / 10000;
+        return basisPoints * plegWeiAmount / 10000; // if you divide first by 1000 it will create problem as it becomes decimal number, not supported
     }
 
 
