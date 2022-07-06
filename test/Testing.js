@@ -135,12 +135,44 @@ describe('Staking', function(){
                 ).to.be.revertedWith(
                     'Only owner may modify staking periods')
             })
-
         })
-
     })
 
 
+    describe('getLockPeriods', function() {
+        it('returns all lock periods', async () => {
+            const lockPeriods = await staking.getLockPeriod()
+
+            expect(
+                lockPeriods.map(v => Number(v._hex)) //lock periods are returned as a hex value, so converting to a number here [mapping value v to a number]
+            ).to.eql( //it checkes nested equality instead of equality. when comparing arrays use eql
+                [30,90,180]
+            )
+        })
+    })
+
+    describe('getInteresRate', function (){
+        it('returns the interest rate for a specific lockPeriod', async () => {
+            const interestRate = await staking.getInterestRate(30)
+            expect(interestRate).to.equal(700)
+        })
+    })
+
+    describe('getPositionById', function () {
+        it('returns data about a specific position, given a positionId', async () => {
+            const provider = waffle.provider;
+
+            const transferAmount = ethers.utils.parseEther('5')
+            const data = { value: transferAmount }
+            const transaction = await staking.connect(signer1).stakePleg(90, data)
+            const receipt = transaction.wait() // we need to have created that position first before testing
+            const block = await provider.getBlock(receipt.blockNumber)
+
+            const position = await staking.connect(signer1.address).getPositionById(0)
+
+            
+        })
+    })
 
 
 })
