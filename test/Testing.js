@@ -96,11 +96,23 @@ describe('Staking', function(){
 
             expect(await staking.currentPositionId()).to.equal(1)
 
-
-
-
         })
         
+        it('adds address and positionId to positionIdsByAddress', async function () {
+            const transferAmount = ethers.utils.parseEther('0.5')
+
+            const data = { value: transferAmount }
+
+            await staking.connect(signer1).stakePleg(30, data)
+            await staking.connect(signer1).stakePleg(30, data)
+            await staking.connect(signer2).stakePleg(90, data)
+
+            expect(await staking.positionIdsByAddress(signer1.address, 0)).to.equal(0) // this is how you access a mapping with an array
+            expect(await staking.positionIdsByAddress(signer1.address, 1)).to.equal(1)  // we're accessing a public variable directly (not a method that returns the value) 
+            expect(await staking.positionIdsByAddress(signer2.address, 0)).to.equal(2)
+        })
+
+
 
     })
 
