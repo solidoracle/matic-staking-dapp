@@ -76,7 +76,7 @@ describe('Staking', function(){
             expect(position.plegInterest).to.equal(0)
             expect(position.open).to.equal(false)
 
-            expect( await staking.currentPositionId().to.equali(0))
+            expect(await staking.currentPositionId()).to.equal(0)
 
             data = { value: transferAmount }
             const transactoin = await staking.connect(signer1).stakePleg(90, data);
@@ -91,11 +91,10 @@ describe('Staking', function(){
             expect(position.unlockDate).to.equal(block.timestamp + (86400 * 90)) //86,4k is the seconds in a day
             expect(position.percentageInterest).to.equal(1000)
             expect(position.plegWeiStaked).to.equal(transferAmount)
-            expect(position.plegInterest).to.equal( ) // calculate it ourselves and compare it to what is stored in the position
-            expect(position.open).to.equal(false)
+            expect(position.plegInterest).to.equal( ethers.BigNumber.from(transferAmount).mul(1000).div(10000) ) // converting transfer amount into  a big number. calculate it ourselves and compare it to what is stored in the position
+            expect(position.open).to.equal(true)
 
-
-
+            expect(await staking.currentPositionId()).to.equal(1)
 
 
 
