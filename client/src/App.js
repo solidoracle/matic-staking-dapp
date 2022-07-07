@@ -3,6 +3,7 @@ import react, { useEffect, useState } from 'react';
 import { ethers } from 'ethers';
 import artifacts from './artifacts/contracts/Staking.sol/Staking.json' //that gets created when we deoploy our contract (we specified this location in our config file)
 
+
 const CONTRACT_ADDRESS ='0xCf7Ed3AccA5a467e9e704C703E8D87F634fB0Fc9'
 
 function App() {
@@ -30,7 +31,7 @@ function App() {
 
   // helper - easyer to convert bytes32 that come back from the contract, convert wei to ether etc
   const toString = bytes32 => ethers.utils.parseBytes32String(bytes32)
-  const toWei = ether => ethers.utils.parseEhter(ether)
+  const toWei = ether => ethers.utils.parseEther(ether)
   const toEther = wei => ethers.utils.formatEther(wei)
 
   //useEffect hoock, that runs when page loads
