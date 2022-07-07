@@ -280,7 +280,33 @@ describe('Staking', function(){
         })
         describe('before unlock date', function (){
             it('transfers only principal', async () => {
+                let transaction;
+                let receipt;
+                let block;
+                const provider = waffle.provider;
+
+                const data = { value: ethers.utils.parseEther('5') } // change the amount so that it's easier to catch errors
+                transaction = await staking.connect(signer2).stakePleg(90, data)
+                receipt = transaction.wait()
+                block = await provider.getBlock(receipt.blockNumber)
                 
+                const position = await staking.getPositionById(0)
+                
+                const signerBalanceBefore = await signer2.getBalance()
+
+                transaction = await staking.connect(signer2).closePosition(0)
+                receipt = await transaction.wait()
+
+                const gasUsed = receipt.gasUsed.mul(receipt.effectiveGasPrice)
+                const signerBalanceAfter = await signer2.getBalance()
+
+                expect(
+                    signerBalanceAfter
+                ).to.equal(
+                    signerBalanceBefore
+                    .sub(gasUsed)
+                    .add(position.plegWeiStaked)
+                    )
             })
         })
     })
