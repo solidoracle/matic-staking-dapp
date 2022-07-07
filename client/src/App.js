@@ -62,7 +62,12 @@ function App() {
     return assetIds
   }
 
-  
+  const calcDaysRemaining = (unlockDate) => {
+    const timeNow = Date.now() / 1000 // comes in millisecond so we want to convert it in seconds so we comparing like4like with contarct data
+    const secondsRemaining = unlockDate - timeNow // seconds until the staked $PLEG unlocks
+    return Math.max( (secondsRemaining / 60 /60 / 24).toFixed(0), 0 ) // toFixed removes any decimal places. And you are taking the max of that in 0 (eg if negative number as date has passed already)
+  }
+
   const getAssets = async (ids, signer) => {
     // we are using Promise.all so that we wait here until we get the data about all the assets that we quering before we move on
     const queriedAssets = await Promise.all( // we will loop through the ids, pass each one to get positionbyid
@@ -71,19 +76,62 @@ function App() {
 
     queriedAssets.map(async asset => {
       const parsedAsset = {  // we create an object (so easier to work with) from the asset data that has come from getpositionid
-        positionId: ,
-        percentInterest: ,
-        daysRemainig; ,
-        plegInterest: ,
-        react
+        positionId: asset.positionId,
+        percentInterest: Number(asset.percentInterest) / 100, //percentInterest does not come as a human readable number so we will call Number on it. we divide it by 100 as it will come back as basis points, and we want to convert it to a number we can display as a % interest
+        daysRemainig: calcDaysRemaining( Number(asset.unlockDate) ),
+        plegInterest: toEther(asset.plegInterest),
+        plegStaked: toEther(asset.plegWeiStaked),
+        open: asset.open,
       }
-    })
 
+      // while we loop over these queried assets and create this parsed asset object we want to add these to our assets
+      setAssetIds(prev => [...prev, parsedAsset])
+    })
+  }
+
+  // function that will be called when user clicks button to connects their wallet
+  const connectAndLoad = async () => {
+    const signer = await getSigner(provider)
+    setSigner(signer)
+
+    const signerAddress = await signer.getAddress()
+    setSignerAddress(signerAddress)
+
+    const assetIds = await getAssetIds(signerAddress, signer)
+    setAssetIds(assetIds)
+
+    getAssets(assetIds, signer) // we'll use those assets ids to query the current positions for the connected wallet
+  } 
+
+
+  const openStakingModal = (stakingLength, stakingPercent) => {
+    setShowStakeModal(true)
+    setStakingLength(stakingLength)
+    setStakingLPercent(stakingPercent)
+  }
+
+  // function stakePleg
+
+  const stakePleg = () => {
+    const plegWei = toWei(amount)
+    const data = { value: plegWei }
+    contract.connect(signer).stakePleg(stakingLength, data)
+  }
+
+  // withdraw function takes a positionId 
+  const withdraw = positionId => {
+    contract.connect(signer).closePosition(positionId)
   }
 
 
+
+// UI incorporate
   return (
     <div className="App">
+      
+
+
+
       
     </div>
   );
