@@ -1,3 +1,4 @@
+/*
 import React, { useState } from 'react';
 
 const StakeModal = props => {
@@ -48,7 +49,10 @@ const StakeModal = props => {
     }
 
 
-
 }
 
+
+
 export default StakeModal
+
+*/
