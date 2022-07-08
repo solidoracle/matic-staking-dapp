@@ -1,4 +1,4 @@
-/*
+
 import React, { useState } from 'react';
 
 const StakeModal = props => {
@@ -10,8 +10,17 @@ const StakeModal = props => {
         stakePleg,
     } = props
 
-    return {
+
+    return (
         <>
+        
+        </>
+    )
+
+
+    return (
+        <>
+
             <div className='modal-class' onClick={{props.onClose}}>
                 <div className='modal-content' onClick={e => e.stopPropagation()}>
                     <div className='modal-body'>
@@ -45,8 +54,12 @@ const StakeModal = props => {
                     </div>
                 </div>        
             </div>
+       
+       
+        
+        
         </>
-    }
+    )
 
 
 }
@@ -55,4 +68,3 @@ const StakeModal = props => {
 
 export default StakeModal
 
-*/
