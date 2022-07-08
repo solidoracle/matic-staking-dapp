@@ -30,7 +30,7 @@ const StakeModal = props => {
                         </div>
 
                         <div className='row'>
-                            <h6 className='titleHeader stakingTerms'>{stakingLength} days @ {stakingPercent} APY</APY></h6>
+                            <h6 className='titleHeader stakingTerms'>{stakingLength} days @ {stakingPercent} APY</h6>
                         </div>
                         <div className='row'>
                            <div
@@ -50,3 +50,5 @@ const StakeModal = props => {
 
 
 }
+
+export default StakeModal
