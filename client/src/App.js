@@ -128,23 +128,43 @@ function App() {
 
 
 // UI incorporate
-  return (
-    <div className="App">
-      <div>
-        <NavBar // component we are definin in 
-        isConnected={isConnected}
-        connect={connectAndLoad}
-
-
-
-
-      </div>
-
-
-
-      
+return (
+  <div className="App">
+    <div>
+      <NavBar // component we are definin in 
+      isConnected={isConnected}
+      connect={connectAndLoad}
+      />
     </div>
-  );
+
+    <div className='appBody'> 
+      <div className='marketContainer'>
+        <div className='subContainer'>
+          <span>
+            <img className='logoImg'  src='eth-logo.webp'/>
+          </span>
+          <span className='marketHeader'>Ethereum Market</span>
+        </div>
+
+
+        <div className='row'>
+          <div className='col-md-4'>
+            <div onClick={() => openStakingModal(30, '7%')} className='marketOption'>
+              <div className='glyphContainer hoverButton'>
+                <span className='glyph'>
+                  <Coin /> // comes from react bootstrap icons
+                </span>
+
+
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>      
+  </div>
+);
 }
 
 export default App;
