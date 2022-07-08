@@ -13,15 +13,7 @@ const StakeModal = props => {
 
     return (
         <>
-        
-        </>
-    )
-
-
-    return (
-        <>
-
-            <div className='modal-class' onClick={{props.onClose}}>
+            <div className='modal-class' onClick={{props,onClose}}>
                 <div className='modal-content' onClick={e => e.stopPropagation()}>
                     <div className='modal-body'>
                         <h2 className='titleHeader'>Stake Pleg</h2>
@@ -48,23 +40,16 @@ const StakeModal = props => {
                             className='orangeButton'                         
                            >
                                Stake
+                            </div>
                         </div>
-
 
                     </div>
                 </div>        
-            </div>
-       
-       
-        
-        
+            </div>      
         </>
     )
-
 
 }
 
 
-
 export default StakeModal
-

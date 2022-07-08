@@ -157,7 +157,7 @@ function App() {
               >
                 <div className="glyphContainer hoverButton">
                   <span className="glyph">
-                    <Coin /> // comes from react bootstrap icons
+                    <Coin /> 
                   </span>
                 </div>
                 <div className="optionData">
@@ -174,7 +174,7 @@ function App() {
               >
                 <div className="glyphContainer hoverButton">
                   <span className="glyph">
-                    <Coin /> // comes from react bootstrap icons
+                    <Coin /> 
                   </span>
                 </div>
                 <div className="optionData">
@@ -191,7 +191,7 @@ function App() {
               >
                 <div className="glyphContainer hoverButton">
                   <span className="glyph">
-                    <Coin /> // comes from react bootstrap icons
+                    <Coin /> 
                   </span>
                 </div>
                 <div className="optionData">
@@ -253,7 +253,7 @@ function App() {
           onClose={() => setShowStakeModal(false)}
           stakingLength={stakingLength}
           stakingLPercent={stakingLPercent}
-          amount={amont}
+          amount={amount}
           setAmount={setAmount}
           stakePleg={stakePleg}
         />
