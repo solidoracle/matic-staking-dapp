@@ -10,7 +10,6 @@ import { Bank, PiggyBank, Coin } from "react-bootstrap-icons";
 const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
 function App() {
-  // general
   // set providers as we are using useState. Providers are read only
   const [provider, setProvider] = useState(undefined);
   // signer is when you interact with the blockchain on behalf of the wallet where the provider is read only so you don't have to initialize that
@@ -29,7 +28,7 @@ function App() {
   // we using modal for the user to input how much $PLEG they want to stake
   const [showStakeModal, setShowStakeModal] = useState(false);
   const [stakingLength, setStakingLength] = useState(undefined);
-  const [stakingLPercent, setStakingLPercent] = useState(undefined);
+  const [stakingPercent, setStakingPercent] = useState(undefined);
   const [amount, setAmount] = useState(0);
 
   // helper - easyer to convert bytes32 that come back from the contract, convert wei to ether etc
@@ -40,7 +39,7 @@ function App() {
   //useEffect hoock, that runs when page loads
   useEffect(() => {
     const onLoad = async () => {
-      const provider = await new ethers.providers.Web3Provider(window.ethereum); //set up provider and wallet as we will always need thos regardless if the user has connected his wallet
+      const provider = await new ethers.providers.Web3Provider(window.ethereum); //set up provider and wallet as we will always need those regardless if the user has connected his wallet
       setProvider(provider);
 
       const contract = await new ethers.Contract(
@@ -49,7 +48,7 @@ function App() {
       );
       setContract(contract);
     };
-    onLoad(); // call unload
+    onLoad(); // call when page loads
   }, []); // finish up useEffect
 
   const isConnected = () => signer !== undefined; // checks if signer not equal to undefined -> wallet is hence connected
@@ -82,8 +81,8 @@ function App() {
     );
 
     queriedAssets.map(async (asset) => {
+   // we create an object (so easier to work with) from the asset data that has come from getpositionid
       const parsedAsset = {
-        // we create an object (so easier to work with) from the asset data that has come from getpositionid
         positionId: asset.positionId,
         percentInterest: Number(asset.percentInterest) / 100, //percentInterest does not come as a human readable number so we will call Number on it. we divide it by 100 as it will come back as basis points, and we want to convert it to a number we can display as a % interest
         daysRemainig: calcDaysRemaining(Number(asset.unlockDate)),
@@ -93,7 +92,7 @@ function App() {
       };
 
       // while we loop over these queried assets and create this parsed asset object we want to add these to our assets
-      setAssetIds((prev) => [...prev, parsedAsset]);
+      setAssets((prev) => [...prev, parsedAsset]);
     });
   };
 
@@ -114,7 +113,7 @@ function App() {
   const openStakingModal = (stakingLength, stakingPercent) => {
     setShowStakeModal(true);
     setStakingLength(stakingLength);
-    setStakingLPercent(stakingPercent);
+    setStakingPercent(stakingPercent);
   };
 
   // function stakePleg
