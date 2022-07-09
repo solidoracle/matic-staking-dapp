@@ -14,7 +14,7 @@ contract Staking {
         uint positionId;
         address walletAddress; // address that created the position
         uint createdDate;
-        uint unlockDate; //date at which funds can be withdrawn withou incurring in penalty
+        uint unlockDate; //date at which funds can be withdrawn without incurring in penalty
         uint percentInterest;
         uint plegWeiStaked;
         uint plegInterest;// amount of intereste the user will earn when their position is unlocked
@@ -24,13 +24,14 @@ contract Staking {
     Position position; // creates a position; some pleg that the user has stacked
 
     uint public currentPositionId; //will increment after each new position is created
-    mapping(uint => Position) public positions;
+    mapping(uint => Position) public positions; // id mapping to a struct
     mapping(address => uint[]) public positionIdsByAddress; // ability for a user to query all the positin they created
     mapping(uint => uint) public tiers; //data on number of days and interest rate that they can stake their $PLEG at
     uint[] public lockPeriods;
 
 
     //able to send $PLEG to the contract, so that it can pay the interest
+    //interest is paid by the staking contract balance
     constructor() payable {
         owner = msg.sender;
         currentPositionId = 0;
@@ -50,14 +51,14 @@ contract Staking {
     function stakePleg(uint numDays) external payable {
         require(tiers[numDays] > 0 , "Mapping not found"); //we don't want people to send $PLEG with an arbitrary number of days without it being pre-approved
 
-        positions[currentPositionId] = Position( //TODO understand 
+        positions[currentPositionId] = Position( 
             currentPositionId,
             msg.sender,
             block.timestamp, //created date
             block.timestamp + (numDays * 1 days), //unlock days. must multiply by "1 days otherwise Soldity doesn't understand the object
             tiers[numDays],
             msg.value, //the pleg stakes - amount of pleg
-            calculateInterest(tiers[numDays], numDays, msg.value),
+            calculateInterest(tiers[numDays], msg.value),
             true
         );
 
@@ -68,7 +69,7 @@ contract Staking {
     
 
     // pure because it doesn't touch the blockchain
-    function calculateInterest(uint basisPoints, uint numDays, uint plegWeiAmount) private pure returns(uint) {
+    function calculateInterest(uint basisPoints, uint plegWeiAmount) private pure returns(uint) {
         return basisPoints * plegWeiAmount / 10000; // if you divide first by 1000 it will create problem as it becomes decimal number, not supported
     }
 
