@@ -129,11 +129,11 @@ function App() {
     contract.connect(signer).closePosition(positionId);
   };
 
-  // UI incorporate
+
   return (
     <div className="App">
       <div>
-        <NavBar // component we are definin in
+        <NavBar
           isConnected={isConnected}
           connect={connectAndLoad}
         />
@@ -145,7 +145,7 @@ function App() {
             <span>
               <img className="logoImg" src="eth-logo.webp" />
             </span>
-            <span className="marketHeader">Ethereum Market</span>
+            <span className="marketHeader">PLEG Staking Market</span>
           </div>
 
           <div className="row">
@@ -156,7 +156,7 @@ function App() {
               >
                 <div className="glyphContainer hoverButton">
                   <span className="glyph">
-                    <Coin /> 
+                    <Coin/> 
                   </span>
                 </div>
                 <div className="optionData">
@@ -251,7 +251,7 @@ function App() {
         <StakeModal
           onClose={() => setShowStakeModal(false)}
           stakingLength={stakingLength}
-          stakingLPercent={stakingLPercent}
+          stakingPercent={stakingPercent}
           amount={amount}
           setAmount={setAmount}
           stakePleg={stakePleg}
