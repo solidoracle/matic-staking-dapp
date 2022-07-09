@@ -8,7 +8,7 @@ describe('Staking', function(){
 
         Staking = await ethers.getContractFactory('Staking', signer1);
 
-        staking = await Staking.deploy({ //we will deploy the contract and send ether at the same time
+        staking = await Staking.deploy({ //we will deploy the contract and send ether at the same time, which is the money interest is paid with
             value: ethers.utils.parseEther('10') //singer1 will give 10 eth to the contract
         })
     })
@@ -79,8 +79,8 @@ describe('Staking', function(){
             expect(await staking.currentPositionId()).to.equal(0)
 
             data = { value: transferAmount }
-            const transactoin = await staking.connect(signer1).stakePleg(90, data);
-            const receipt = await transactoin.wait()
+            const transaction = await staking.connect(signer1).stakePleg(90, data);
+            const receipt = await transaction.wait()
             const block = await provider.getBlock(receipt.blockNumber) //get the block from the receipt. We are getting the created date, the block that the blockchain stored this transaction, is the same date when the transaction was exectuted
 
             position = await staking.positions(0)
@@ -94,7 +94,7 @@ describe('Staking', function(){
             expect(position.plegInterest).to.equal( ethers.BigNumber.from(transferAmount).mul(1000).div(10000) ) // converting transfer amount into  a big number. calculate it ourselves and compare it to what is stored in the position
             expect(position.open).to.equal(true)
 
-            expect(await staking.currentPositionId()).to.equal(1)
+            expect(await staking.currentPositionId()).to.equal(1) //MF: why 1?
 
         })
         
@@ -259,7 +259,7 @@ describe('Staking', function(){
 
                 const position = await staking.getPositionById(0)
 
-                //signers balance increased by the amount thei originally stake, the amount the interest the earned on that - gas fees to unstake
+                //signers balance increased by the amount they originally stake, the amount the interest the earned on that - gas fees to unstake
                 const signerBalanceBefore = await signer2.getBalance()
 
                 transaction = await staking.connect(signer2).closePosition(0)
