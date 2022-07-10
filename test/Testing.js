@@ -192,7 +192,7 @@ describe('Staking', function(){
             data = { value: ethers.utils.parseEther('10')}
             transaction = await staking.connect(signer1).stakePleg(90, data) // we are not testing the staking function, but we need to create a positions so that we can run this test
 
-            const positionIds = await staking.getPositoinIdsForAddress(signer1.address)
+            const positionIds = await staking.getPositionIdsForAddress(signer1.address)
 
             expect(
                 positionIds.map(p => Number(p))
