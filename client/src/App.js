@@ -240,8 +240,7 @@ function App() {
                   </div>
                 ) : (
                   <span>closed</span>
-                )}{" "}
-                %
+                )}
               </div>
             </div>
           ))}

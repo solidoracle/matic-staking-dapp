@@ -72,8 +72,8 @@
       ]
     },
     "/home/solidoracle/Documents/stakingv2-2/contracts/staking.sol": {
-      "lastModificationDate": 1657361579014,
-      "contentHash": "cac4ac1be30f9e7947d840f8595576a2",
+      "lastModificationDate": 1657460270228,
+      "contentHash": "4f8e1de2c4e0507fa48036a28a64cd35",
       "sourceName": "contracts/staking.sol",
       "solcConfig": {
         "version": "0.8.0",

@@ -13,7 +13,7 @@ const StakeModal = props => {
 
     return (
         <>
-            <div className='modal-class' onClick={{props,onClose}}>
+            <div className='modal-class' onClick={props.onClose}>
                 <div className='modal-content' onClick={e => e.stopPropagation()}>
                     <div className='modal-body'>
                         <h2 className='titleHeader'>Stake Pleg</h2>
