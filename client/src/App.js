@@ -57,6 +57,7 @@ function App() {
   const getSigner = async () => {
     provider.send("ether_requestAccounts", []); // from ethjs accounts
     const signer = provider.getSigner();
+    setSigner(signer);
     return signer; // we return it here immediately bacause when we set the signer setSigner(signer) it might not be available immediately. So we use that value immediately
   };
 
