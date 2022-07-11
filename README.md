@@ -3,7 +3,6 @@ Packages to install
 
 
 DEPLOY
-npx hardhat node
 npx hardhat run --network localhost scripts/1_deploy.js
 
 
