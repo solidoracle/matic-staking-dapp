@@ -16,3 +16,5 @@ npm i react-bootstrap-icons ethers bootstrap
 
 npm start to start the app
 
+TEST
+npx hardhat test
