@@ -222,7 +222,7 @@ describe('Staking', function(){
         })
 
 
-        describe('owner', function() {
+        describe('non-owner', function() {
             it('reverts', async () => {
                 const data = { value: ethers.utils.parseEther('8') }
                 const transaction = await staking.connect(signer2).stakePleg(90, data)
