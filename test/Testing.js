@@ -94,7 +94,7 @@ describe('Staking', function(){
             expect(position.plegInterest).to.equal( ethers.BigNumber.from(transferAmount).mul(1000).div(10000) ) // converting transfer amount into  a big number. calculate it ourselves and compare it to what is stored in the position
             expect(position.open).to.equal(true)
 
-            expect(await staking.currentPositionId()).to.equal(1) //MF: why 1?
+            expect(await staking.currentPositionId()).to.equal(1) // caused by the currentPositionId++; at the end of the staking function
 
         })
         
@@ -111,6 +111,24 @@ describe('Staking', function(){
             expect(await staking.positionIdsByAddress(signer1.address, 1)).to.equal(1)  // we're accessing a public variable directly (not a method that returns the value) 
             expect(await staking.positionIdsByAddress(signer2.address, 0)).to.equal(2)
         })
+    
+        it('stakes only available funds', async function () {
+            const transferAmount = signer1.getBalance()
+            const data = { value: transferAmount }
+            let err = "";
+
+            try {
+            await staking.connect(signer1).stakePleg(90, data)
+            }
+            catch(e) {
+                err = e.message;
+            }
+            expect(err).to.equal("sender doesn't have enough funds to send tx. The max upfront cost is: 9936026830626996236484 and the sender's account only has: 9935984984268918001956")
+    
+        })
+    
+    
+    
     })
 
     describe('modifyLockPeriods', function () {
