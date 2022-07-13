@@ -1,10 +1,15 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.0;
+
+//import "@openzeppelin-4.5.0/contracts/access/Ownable.sol";
+//import "@openzeppelin-4.5.0/contracts/token/ERC20/utils/SafeERC20.sol";
+
 
 // title
 
 contract Staking {
+
+    //using SafeERC20 for IERC20;
 
     address public owner;
 
@@ -21,6 +26,8 @@ contract Staking {
         bool open;// position is closed or not
     }
 
+    //IERC20 public immutable token; // pleg token.
+
     Position position; // creates a position; some pleg that the user has stacked
 
     uint public currentPositionId; //will increment after each new position is created
@@ -32,6 +39,7 @@ contract Staking {
 
     //able to send $PLEG to the contract, so that it can pay the interest
     //interest is paid by the staking contract balance
+    //TODO add IERC20 token
     constructor() payable {
         owner = msg.sender;
         currentPositionId = 0;
