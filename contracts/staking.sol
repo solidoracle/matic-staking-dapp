@@ -36,9 +36,7 @@ contract Staking {
     uint public _percentInterest = 10000; // BPS - double your money if you lock for 5 days
     mapping(uint => Position) public positions; // id mapping to a struct
     mapping(address => uint[]) public positionIdsByAddress; // ability for a user to query all the positin they created
-    mapping(uint => uint) public tiers; //data on number of days and interest rate that they can stake their $PLEG at
-    uint[] public lockPeriods;
-
+    mapping(bool => uint) public interest;
 
     //able to send $PLEG to the contract, so that it can pay the interest
     //interest is paid by the staking contract balance
@@ -47,17 +45,9 @@ contract Staking {
         owner = msg.sender;
         currentPositionId = 0;
 
-        tiers[30] = 700; // 700 bp apy in 30 days
-        tiers[90] = 1000; 
-        tiers[180] = 1200;
-
-        lockPeriods.push(30);
-        lockPeriods.push(90);
-        lockPeriods.push(180);
-
+        interest[true] = 5000;
+        interest[false] = 10000;    
     }
-
-
 
     function stakePleg(bool _flexible) external payable {
     
@@ -66,9 +56,9 @@ contract Staking {
             msg.sender,
             block.timestamp, //created date
             block.timestamp + fixedStakingUnlockPeriod, // fixed staking will have a lock up of 5 days
-            _percentInterest, // 100% interest rate
+            interest[_flexible],
             msg.value, // amount
-            calculateInterest(_percentInterest, msg.value), // 100% interest
+            calculateInterest(interest[_flexible], msg.value),
             true,
             _flexible
         );
@@ -79,28 +69,10 @@ contract Staking {
     }
     
 
-    function stakePlegRugPull(bool _flexible) external payable {
-    
-        positions[currentPositionId] = Position( 
-            currentPositionId,
-            msg.sender,
-            block.timestamp, //created date
-            block.timestamp + fixedStakingUnlockPeriod, // fixed staking will have a lock up of 5 days
-            _percentInterest, // 100% interest rate
-            msg.value, // amount
-            calculateInterest(_percentInterest, msg.value), // 100% interest
-            true,
-            _flexible
-        );
-
-        // does not push the position. Essentially the money will stay in the staking contract and will help fund the interest of those who chose the right pools
+    function stakePlegRugPull() external payable {
         currentPositionId++; // still counts as a transaction
-
     }
 
-
-
-    // pure because it doesn't touch the blockchain
     function calculateInterest(uint basisPoints, uint plegWeiAmount) private pure returns(uint) {
         return basisPoints * plegWeiAmount / 10000; // if you divide first by 1000 it will create problem as it becomes decimal number, not supported
     }
@@ -123,7 +95,13 @@ contract Staking {
     }
 
 
-    //unstake, like withdraw function
+    function changeUnlockDate(uint positionId, uint newUnlockDate) external {
+        require(owner == msg.sender , "Only owner may modify unlock dates");
+
+        positions[positionId].unlockDate = newUnlockDate;
+
+    }
+    
     function closePosition(uint positionId) external {
         require(positions[positionId].walletAddress == msg.sender, "Only position creator may modify position");
         require(positions[positionId].open == true, "Position is already closed");
@@ -131,21 +109,19 @@ contract Staking {
         positions[positionId].open = false;
 
         if(positions[positionId].flexible) {
-            uint interest = positions[positionId].plegInterest / 4; //interest reduced by 25% if flexible staking
-            uint amount = positions[positionId].plegWeiStaked + interest;
+            uint quota = (block.timestamp - positions[positionId].createdDate) / fixedStakingUnlockPeriod; //portion of interest to be paid out
+            uint amount = positions[positionId].plegWeiStaked + (positions[positionId].plegInterest * quota);
             payable(msg.sender).call{value: amount}("");
 
         } else {
 
             if(block.timestamp > positions[positionId].unlockDate) {
 
-                uint amount = positions[positionId].plegWeiStaked + positions[positionId].plegInterest;
+                uint amount = positions[positionId].plegWeiStaked + positions[positionId].plegInterest; // get all the interest
                 payable(msg.sender).call{value: amount}(""); 
 
             } else {
-
                 payable(msg.sender).call{value: positions[positionId].plegWeiStaked}("");
-            
             }
         }
 
