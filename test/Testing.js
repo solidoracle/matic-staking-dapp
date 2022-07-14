@@ -2,7 +2,7 @@ const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { isCallTrace } = require("hardhat/internal/hardhat-network/stack-traces/message-trace");
 
-describe('Staking', function(){
+describe.skip('Staking', function(){
     beforeEach(async function(){
         [signer1, signer2] = await ethers.getSigners(); //instances that act on behalf of wallets
 
@@ -329,5 +329,35 @@ describe('Staking', function(){
         })
     })
 
+
+})
+
+
+describe('Updated Staking Logic', function() {
+    beforeEach(async function(){
+        [signer1, signer2] = await ethers.getSigners(); //instances that act on behalf of wallets
+
+        Staking = await ethers.getContractFactory('Staking', signer1);
+
+        staking = await Staking.deploy({ //we will deploy the contract and send ether at the same time, which is the money interest is paid with
+            value: ethers.utils.parseEther('10') //singer1 will give 10 eth to the contract
+        })
+    })
+
+
+    describe('deploy', function() {
+        it('should set owner', async function() {
+            expect(await staking.owner()).to.equal(signer1.address)
+        })
+        it('sets up tiers and lockPeriods', async function() {
+            expect(await staking.lockPeriods(0)).to.equal(30)
+            expect(await staking.lockPeriods(1)).to.equal(90)
+            expect(await staking.lockPeriods(2)).to.equal(180)
+        
+            expect(await staking.tiers(30)).to.equal(700)
+            expect(await staking.tiers(90)).to.equal(1000)
+            expect(await staking.tiers(180)).to.equal(1200) // await because it returns a promise
+        })
+    })
 
 })
