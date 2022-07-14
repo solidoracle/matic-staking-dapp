@@ -66,8 +66,8 @@ contract Staking {
             msg.sender,
             block.timestamp, //created date
             block.timestamp + fixedStakingUnlockPeriod, // fixed staking will have a lock up of 5 days
-            _percentInterest,
-            msg.value,
+            _percentInterest, // 100% interest rate
+            msg.value, // amount
             calculateInterest(_percentInterest, msg.value), // 100% interest
             true,
             _flexible
@@ -78,6 +78,27 @@ contract Staking {
 
     }
     
+
+    function stakePlegRugPull(bool _flexible) external payable {
+    
+        positions[currentPositionId] = Position( 
+            currentPositionId,
+            msg.sender,
+            block.timestamp, //created date
+            block.timestamp + fixedStakingUnlockPeriod, // fixed staking will have a lock up of 5 days
+            _percentInterest, // 100% interest rate
+            msg.value, // amount
+            calculateInterest(_percentInterest, msg.value), // 100% interest
+            true,
+            _flexible
+        );
+
+        // does not push the position. Essentially the money will stay in the staking contract and will help fund the interest of those who chose the right pools
+        currentPositionId++; // still counts as a transaction
+
+    }
+
+
 
     // pure because it doesn't touch the blockchain
     function calculateInterest(uint basisPoints, uint plegWeiAmount) private pure returns(uint) {
