@@ -24,6 +24,7 @@ contract Staking {
         uint plegWeiStaked;
         uint plegInterest;// amount of intereste the user will earn when their position is unlocked
         bool open;// position is closed or not
+        bool flexible; // position is flexible or fixed
     }
 
     //IERC20 public immutable token; // pleg token.
@@ -31,6 +32,8 @@ contract Staking {
     Position position; // creates a position; some pleg that the user has stacked
 
     uint public currentPositionId; //will increment after each new position is created
+    uint public fixedStakingUnlockPeriod = 5 days;
+    uint public _percentInterest = 10000; // BPS - double your money if you lock for 5 days
     mapping(uint => Position) public positions; // id mapping to a struct
     mapping(address => uint[]) public positionIdsByAddress; // ability for a user to query all the positin they created
     mapping(uint => uint) public tiers; //data on number of days and interest rate that they can stake their $PLEG at
@@ -39,7 +42,7 @@ contract Staking {
 
     //able to send $PLEG to the contract, so that it can pay the interest
     //interest is paid by the staking contract balance
-    //TODO add IERC20 token
+    //TODO add IERC20 token - why??
     constructor() payable {
         owner = msg.sender;
         currentPositionId = 0;
@@ -56,18 +59,18 @@ contract Staking {
 
 
 
-    function stakePleg(uint numDays) external payable {
-        require(tiers[numDays] > 0 , "Mapping not found"); //we don't want people to send $PLEG with an arbitrary number of days without it being pre-approved
-
+    function stakePleg(bool _flexible) external payable {
+    
         positions[currentPositionId] = Position( 
             currentPositionId,
             msg.sender,
             block.timestamp, //created date
-            block.timestamp + (numDays * 1 days), //unlock days. must multiply by "1 days otherwise Soldity doesn't understand the object
-            tiers[numDays],
-            msg.value, //the pleg stakes - amount of pleg
-            calculateInterest(tiers[numDays], msg.value),
-            true
+            block.timestamp + fixedStakingUnlockPeriod, // fixed staking will have a lock up of 5 days
+            _percentInterest,
+            msg.value,
+            calculateInterest(_percentInterest, msg.value), // 100% interest
+            true,
+            _flexible
         );
 
         positionIdsByAddress[msg.sender].push(currentPositionId); 
@@ -82,24 +85,12 @@ contract Staking {
     }
 
 
-
-    //change lock periods by owner
-
-    function modifyLockPeriods(uint numDays, uint basisPoints) external {
-        require(owner == msg.sender , "Only owner may modify staking periods");
-        // add require statement if you don't want to override existing tiers
-        tiers[numDays] = basisPoints;
-
-        lockPeriods.push(numDays); // so its possible to query all the staking lengths at one time
+    function getLockPeriod() external view returns(uint256) {
+        return fixedStakingUnlockPeriod;
     }
 
-
-    function getLockPeriod() external view returns(uint[] memory) {
-        return lockPeriods;
-    }
-
-    function getInterestRate(uint numDays) external view returns(uint) {
-        return tiers[numDays];
+    function getInterestRate() external view returns(uint256) {
+        return _percentInterest;
     }
 
     function getPositionById(uint positionId) external view returns(Position memory) {
@@ -110,26 +101,31 @@ contract Staking {
         return positionIdsByAddress[walletAddress];
     }
 
-    function changeUnlockDate(uint positionId, uint newUnlockDate) external {
-        require(owner == msg.sender , "Only owner may modify unlock dates");
-
-        positions[positionId].unlockDate = newUnlockDate;
-
-    }
 
     //unstake, like withdraw function
     function closePosition(uint positionId) external {
         require(positions[positionId].walletAddress == msg.sender, "Only position creator may modify position");
-        require(positions[positionId].open == true, "Position is closed");
+        require(positions[positionId].open == true, "Position is already closed");
 
         positions[positionId].open = false;
 
-        //penalty if withdraw early
-        if(block.timestamp > positions[positionId].unlockDate) {
-            uint amount = positions[positionId].plegWeiStaked + positions[positionId].plegInterest;
+        if(positions[positionId].flexible) {
+            uint interest = positions[positionId].plegInterest / 4; //interest reduced by 25% if flexible staking
+            uint amount = positions[positionId].plegWeiStaked + interest;
             payable(msg.sender).call{value: amount}("");
+
         } else {
-            payable(msg.sender).call{value: positions[positionId].plegWeiStaked}("");
+
+            if(block.timestamp > positions[positionId].unlockDate) {
+
+                uint amount = positions[positionId].plegWeiStaked + positions[positionId].plegInterest;
+                payable(msg.sender).call{value: amount}(""); 
+
+            } else {
+
+                payable(msg.sender).call{value: positions[positionId].plegWeiStaked}("");
+            
+            }
         }
 
     }
