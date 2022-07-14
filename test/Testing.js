@@ -401,9 +401,9 @@ describe('Updated Staking Logic', function() {
             expect(position.walletAddress).to.equal(signer1.address)
             expect(position.createdDate).to.equal(block.timestamp)
             expect(position.unlockDate).to.equal(block.timestamp + (86400 * 5)) //86,4k is the seconds in a day
-            expect(position.percentInterest).to.equal(10000)
+            expect(position.percentInterest).to.equal(5000)
             expect(position.plegWeiStaked).to.equal(transferAmount)
-            expect(position.plegInterest).to.equal( ethers.BigNumber.from(transferAmount).mul(10000).div(10000) ) // converting transfer amount into  a big number. calculate it ourselves and compare it to what is stored in the position
+            expect(position.plegInterest).to.equal( ethers.BigNumber.from(transferAmount).mul(5000).div(10000) ) // converting transfer amount into  a big number. calculate it ourselves and compare it to what is stored in the position
             expect(position.open).to.equal(true)
 
             expect(await staking.currentPositionId()).to.equal(1) // caused by the currentPositionId++; at the end of the staking function
@@ -435,7 +435,7 @@ describe('Updated Staking Logic', function() {
             catch(e) {
                 err = e.message;
             }
-            expect(err).to.equal("sender doesn't have enough funds to send tx. The max upfront cost is: 9936026830626996236484 and the sender's account only has: 9935984984268918001956")
+            expect(err).to.equal("sender doesn't have enough funds to send tx. The max upfront cost is: 9956035199767003157442 and the sender's account only has: 9955989927972618662738")
         })        
     })
     
@@ -487,7 +487,7 @@ describe('Updated Staking Logic', function() {
                 const provider = waffle.provider;
 
                 const data = { value: ethers.utils.parseEther('5') } // change the amount so that it's easier to catch errors
-                transaction = await staking.connect(signer2).stakePleg(90, data)
+                transaction = await staking.connect(signer2).stakePleg(false, data)
                 receipt = transaction.wait()
                 block = await provider.getBlock(receipt.blockNumber)
                 
@@ -509,13 +509,47 @@ describe('Updated Staking Logic', function() {
                     .add(position.plegWeiStaked)
                     )
             })
+
+            it('transfers principal and accrued interest for flexible position', async () => {
+                let transaction;
+                let receipt;
+                let block;
+                const provider = waffle.provider;
+
+                const data = { value: ethers.utils.parseEther('5') } // change the amount so that it's easier to catch errors
+                transaction = await staking.connect(signer2).stakePleg(true, data)
+                receipt = transaction.wait()
+                block = await provider.getBlock(receipt.blockNumber)
+
+                const newUnlockDate = block.timestamp - (86400 * 2)
+                await staking.connect(signer1).changeUnlockDate(0, newUnlockDate)
+                
+                const position = await staking.getPositionById(0)
+                
+                const signerBalanceBefore = await signer2.getBalance()
+
+                transaction = await staking.connect(signer2).closePosition(0)
+                receipt = await transaction.wait()
+
+                const gasUsed = receipt.gasUsed.mul(receipt.effectiveGasPrice)
+                const signerBalanceAfter = await signer2.getBalance()
+
+                const quota = newUnlockDate / (86400 * 5)
+
+                const interest = position.plegWeiStaked * quota
+
+                expect(
+                    signerBalanceAfter
+                ).to.equal(
+                    signerBalanceBefore
+                    .sub(gasUsed)
+                    .add(position.plegWeiStaked)
+                    .add(interest)
+                )
+            })
+
         })
+ 
     })
-
-
-
-
-
-
 
 })
