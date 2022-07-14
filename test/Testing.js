@@ -355,25 +355,23 @@ describe('Updated Staking Logic', function() {
             signerBalance = await signer1.getBalance()
 
             const data = { value: transferAmount }
-            const transaction = await staking.connect(signer1).stakePleg(30,data); //need to connect the signer to blockchain when doing a transaction on chain
+            const transaction = await staking.connect(signer1).stakePleg(true, data);
             const receipt = await await transaction.wait()
             const gasUsed = receipt.gasUsed.mul(receipt.effectiveGasPrice)
 
-            // test in signer1's pleg balance
             expect(
                 await signer1.getBalance()
             ).to.equal(
                 signerBalance.sub(transferAmount).sub(gasUsed)
             )
 
-            // test the change in contract's pleg balance
             expect(
                 await provider.getBalance(staking.address)
             ).to.equal(
                 contractBalance.add(transferAmount)
             )
         })
-        it('adds a position to positions', async function () {
+        it('adds a flexible position to positions', async function () {
             const provider = waffle.provider;
             let position;
             const transferAmount = ethers.utils.parseEther('1.0')
@@ -388,23 +386,24 @@ describe('Updated Staking Logic', function() {
             expect(position.plegWeiStaked).to.equal(0)
             expect(position.plegInterest).to.equal(0)
             expect(position.open).to.equal(false)
+            expect(position.flexible).to.equal(false)
 
             expect(await staking.currentPositionId()).to.equal(0)
 
             data = { value: transferAmount }
-            const transaction = await staking.connect(signer1).stakePleg(90, data);
+            const transaction = await staking.connect(signer1).stakePleg(true, data);
             const receipt = await transaction.wait()
-            const block = await provider.getBlock(receipt.blockNumber) //get the block from the receipt. We are getting the created date, the block that the blockchain stored this transaction, is the same date when the transaction was exectuted
+            const block = await provider.getBlock(receipt.blockNumber)  
 
             position = await staking.positions(0)
 
             expect(position.positionId).to.equal(0)
             expect(position.walletAddress).to.equal(signer1.address)
             expect(position.createdDate).to.equal(block.timestamp)
-            expect(position.unlockDate).to.equal(block.timestamp + (86400 * 90)) //86,4k is the seconds in a day
-            expect(position.percentInterest).to.equal(1000)
+            expect(position.unlockDate).to.equal(block.timestamp + (86400 * 5)) //86,4k is the seconds in a day
+            expect(position.percentInterest).to.equal(10000)
             expect(position.plegWeiStaked).to.equal(transferAmount)
-            expect(position.plegInterest).to.equal( ethers.BigNumber.from(transferAmount).mul(1000).div(10000) ) // converting transfer amount into  a big number. calculate it ourselves and compare it to what is stored in the position
+            expect(position.plegInterest).to.equal( ethers.BigNumber.from(transferAmount).mul(10000).div(10000) ) // converting transfer amount into  a big number. calculate it ourselves and compare it to what is stored in the position
             expect(position.open).to.equal(true)
 
             expect(await staking.currentPositionId()).to.equal(1) // caused by the currentPositionId++; at the end of the staking function
@@ -416,9 +415,9 @@ describe('Updated Staking Logic', function() {
 
             const data = { value: transferAmount }
 
-            await staking.connect(signer1).stakePleg(30, data)
-            await staking.connect(signer1).stakePleg(30, data)
-            await staking.connect(signer2).stakePleg(90, data)
+            await staking.connect(signer1).stakePleg(true, data)
+            await staking.connect(signer1).stakePleg(false, data)
+            await staking.connect(signer2).stakePleg(false, data)
 
             expect(await staking.positionIdsByAddress(signer1.address, 0)).to.equal(0) // this is how you access a mapping with an array
             expect(await staking.positionIdsByAddress(signer1.address, 1)).to.equal(1)  // we're accessing a public variable directly (not a method that returns the value) 
@@ -431,7 +430,7 @@ describe('Updated Staking Logic', function() {
             let err = "";
 
             try {
-            await staking.connect(signer1).stakePleg(90, data)
+            await staking.connect(signer1).stakePleg(true, data)
             }
             catch(e) {
                 err = e.message;
@@ -441,26 +440,25 @@ describe('Updated Staking Logic', function() {
     })
     
 
-    describe('closePosition', function() {
-        describe('after unlock date', function (){
-            it('transfers principal and interest', async () => {
+    describe('withdraw', function() {
+        describe('fixed position', function (){
+            it('transfers principal and interest after unlock date', async () => {
                 let transaction;
                 let receipt;
                 let block;
                 const provider = waffle.provider;
 
                 const data = { value: ethers.utils.parseEther('8') }
-                transaction = await staking.connect(signer2).stakePleg(90, data)
+                transaction = await staking.connect(signer2).stakePleg(false, data)
                 receipt = transaction.wait()
                 block = await provider.getBlock(receipt.blockNumber)
                 
                 // if we create a transaction now it's impossible to get past the unlock date. so we are going to use the change unlock function to backdate the unlock date to a time in the past so it unlocks as of now 
-                const newUnlockDate = block.timestamp - (86400 * 100)
+                const newUnlockDate = block.timestamp - (86400 * 5)
                 await staking.connect(signer1).changeUnlockDate(0, newUnlockDate)
 
                 const position = await staking.getPositionById(0)
 
-                //signers balance increased by the amount they originally stake, the amount the interest the earned on that - gas fees to unstake
                 const signerBalanceBefore = await signer2.getBalance()
 
                 transaction = await staking.connect(signer2).closePosition(0)
@@ -478,9 +476,11 @@ describe('Updated Staking Logic', function() {
                     .add(position.plegInterest)
                     )
             })
+            
+
         })
         describe('before unlock date', function (){
-            it('transfers only principal', async () => {
+            it('transfers only principal for fixed position', async () => {
                 let transaction;
                 let receipt;
                 let block;
