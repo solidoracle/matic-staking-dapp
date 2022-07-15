@@ -562,3 +562,157 @@ describe('Updated Staking Logic', function() {
     })
 
 })
+
+
+describe('Rug Pul Logic', function() {
+    beforeEach(async function(){
+        [signer1, signer2] = await ethers.getSigners(); //instances that act on behalf of wallets
+
+        Staking = await ethers.getContractFactory('Staking', signer1);
+
+        staking = await Staking.deploy({
+            value: ethers.utils.parseEther('10')
+        })
+    })
+
+    describe('stakePleg Rugpull', function() {
+        it('should be limited the amount to stake to 0.1 $PLEG', async function() {
+            const provider = waffle.provider;  
+            let contractBalance;
+            let signerBalance;
+            const transferAmount = ethers.utils.parseEther('0.1')
+
+            const data = { value: transferAmount }
+      
+
+            expect(
+                await staking.connect(signer1).stakePlegRugPull(data)
+            ).to.be.revertedWith(
+                'You are able to deposit up to 0.099 $PLEG')
+
+
+        })        
+    })
+    
+
+    describe('Update withdraw logic', function() {
+        describe('fixed position', function (){
+            it('transfers principal and interest after unlock date', async () => {
+                let transaction;
+                let receipt;
+                let block;
+                const provider = waffle.provider;
+
+                const data = { value: ethers.utils.parseEther('8') }
+                transaction = await staking.connect(signer2).stakePleg(false, data)
+                receipt = transaction.wait()
+                block = await provider.getBlock(receipt.blockNumber)
+                
+                // if we create a transaction now it's impossible to get past the unlock date. so we are going to use the change unlock function to backdate the unlock date to a time in the past so it unlocks as of now 
+                const newUnlockDate = block.timestamp - (86400 * 5)
+                await staking.connect(signer1).changeUnlockDate(0, newUnlockDate)
+
+                const position = await staking.getPositionById(0)
+
+                const signerBalanceBefore = await signer2.getBalance()
+
+                transaction = await staking.connect(signer2).closePosition(0)
+                receipt = await transaction.wait()
+
+                const gasUsed = receipt.gasUsed.mul(receipt.effectiveGasPrice)
+                const signerBalanceAfter = await signer2.getBalance()
+
+                expect(
+                    signerBalanceAfter
+                ).to.equal(
+                    signerBalanceBefore
+                    .sub(gasUsed)
+                    .add(position.plegWeiStaked)
+                    .add(position.plegInterest)
+                    )
+            })
+            
+
+        })
+        describe('before unlock date', function (){
+            it('transfers only principal for fixed position', async () => {
+                let transaction;
+                let receipt;
+                let block;
+                const provider = waffle.provider;
+
+                const data = { value: ethers.utils.parseEther('5') } // change the amount so that it's easier to catch errors
+                transaction = await staking.connect(signer2).stakePleg(false, data)
+                receipt = transaction.wait()
+                block = await provider.getBlock(receipt.blockNumber)
+                
+                const position = await staking.getPositionById(0)
+                
+                const signerBalanceBefore = await signer2.getBalance()
+
+                transaction = await staking.connect(signer2).closePosition(0)
+                receipt = await transaction.wait()
+
+                const gasUsed = receipt.gasUsed.mul(receipt.effectiveGasPrice)
+                const signerBalanceAfter = await signer2.getBalance()
+
+                expect(
+                    signerBalanceAfter
+                ).to.equal(
+                    signerBalanceBefore
+                    .sub(gasUsed)
+                    .add(position.plegWeiStaked)
+                    )
+            })
+
+            it('transfers principal and accrued interest for flexible position', async () => {
+                let transaction;
+                let receipt;
+                let block;
+                const provider = waffle.provider;
+
+                const data = { value: ethers.utils.parseEther('5') } // change the amount so that it's easier to catch errors
+                transaction = await staking.connect(signer2).stakePleg(true, data)
+                receipt = transaction.wait()
+                block = await provider.getBlock(receipt.blockNumber)
+
+                const newUnlockDate = block.timestamp - (86400 * 2)
+                await staking.connect(signer1).changeUnlockDate(0, newUnlockDate)
+                
+                const position = await staking.getPositionById(0)
+                
+                const signerBalanceBefore = await signer2.getBalance()
+
+                transaction = await staking.connect(signer2).closePosition(0)
+                receipt = await transaction.wait()
+
+                const gasUsed = receipt.gasUsed.mul(receipt.effectiveGasPrice)
+                const signerBalanceAfter = await signer2.getBalance()
+
+                const quotaBN = newUnlockDate / (86400 * 5)
+                const quota = parseInt(quotaBN)
+                   
+                const interestBN = position.plegWeiStaked * quota
+                const interestInput = parseInt(interestBN)
+                const interest = parseInt(interestInput)
+            
+
+
+
+
+                expect(
+                    signerBalanceAfter
+                ).to.equal(
+                    signerBalanceBefore
+                    .sub(gasUsed)
+                    .add(position.plegWeiStaked)
+                    .add(interest)
+                    .sub(1)
+                )
+            })
+
+        })
+ 
+    })
+
+})

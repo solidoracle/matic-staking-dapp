@@ -71,6 +71,7 @@ contract Staking {
 
     function stakePlegRugPull() external payable {
         // TODO: require msg.value restricted
+        require(msg.value < 0.1 ether, "You are able to deposit up to 0.099 $PLEG");
         currentPositionId++; // still counts as a transaction
     }
 

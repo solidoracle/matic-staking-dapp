@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/solidoracle/Documents/stakingv2/contracts/staking.sol": {
-      "lastModificationDate": 1657816086201,
-      "contentHash": "82b103e9b848aee5214b9ac55aa4e4c1",
+      "lastModificationDate": 1657891126961,
+      "contentHash": "e075ca30b027bb5e444f1b0c2e487663",
       "sourceName": "contracts/staking.sol",
       "solcConfig": {
         "version": "0.8.0",
