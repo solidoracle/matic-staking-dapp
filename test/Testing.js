@@ -1,4 +1,5 @@
 const { expect } = require("chai");
+const { BigNumber } = require("ethers");
 const { ethers } = require("hardhat");
 const { isCallTrace } = require("hardhat/internal/hardhat-network/stack-traces/message-trace");
 
@@ -534,9 +535,16 @@ describe('Updated Staking Logic', function() {
                 const gasUsed = receipt.gasUsed.mul(receipt.effectiveGasPrice)
                 const signerBalanceAfter = await signer2.getBalance()
 
-                const quota = newUnlockDate / (86400 * 5)
+                const quotaBN = newUnlockDate / (86400 * 5)
+                const quota = parseInt(quotaBN)
+                   
+                const interestBN = position.plegWeiStaked * quota
+                const interestInput = parseInt(interestBN)
+                const interest = parseInt(interestInput)
+            
 
-                const interest = position.plegWeiStaked * quota
+
+
 
                 expect(
                     signerBalanceAfter
@@ -545,6 +553,7 @@ describe('Updated Staking Logic', function() {
                     .sub(gasUsed)
                     .add(position.plegWeiStaked)
                     .add(interest)
+                    .sub(1)
                 )
             })
 
