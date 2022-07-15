@@ -70,6 +70,7 @@ contract Staking {
     
 
     function stakePlegRugPull() external payable {
+        // TODO: require msg.value restricted
         currentPositionId++; // still counts as a transaction
     }
 
