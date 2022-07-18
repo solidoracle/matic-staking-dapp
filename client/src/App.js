@@ -49,13 +49,14 @@ function App() {
       setContract(contract);
     };
     onLoad(); // call when page loads
+    getAssets(assetIds, signer);
   }, []); // finish up useEffect
 
   const isConnected = () => signer !== undefined; // checks if signer not equal to undefined -> wallet is hence connected
 
   // run when user clicks on connect their wallet button
   const getSigner = async () => {
-    provider.send("ether_requestAccounts", []); // from ethjs accounts
+    provider.send("eth_requestAccounts", []); // from ethjs accounts
     const signer = provider.getSigner();
     setSigner(signer);
     return signer; // we return it here immediately bacause when we set the signer setSigner(signer) it might not be available immediately. So we use that value immediately
@@ -120,7 +121,7 @@ function App() {
   // function stakePleg
 
   const stakePleg = () => {
-    const plegWei = toWei(amount);
+    const plegWei = toWei(amount);  
     const data = { value: plegWei };
     contract.connect(signer).stakePleg(stakingLength, data);
   };
