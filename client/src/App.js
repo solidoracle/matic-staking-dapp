@@ -40,7 +40,9 @@ function App() {
   useEffect(() => {
     const onLoad = async () => {
       const provider = await new ethers.providers.Web3Provider(window.ethereum); //set up provider and wallet as we will always need those regardless if the user has connected his wallet
+      await provider.send('eth_requestAccounts', []);
       setProvider(provider);
+      console.log("provider set to:", provider.toString())
 
       const contract = await new ethers.Contract(
         CONTRACT_ADDRESS,
@@ -99,11 +101,14 @@ function App() {
 
   // function that will be called when user clicks button to connects their wallet
   const connectAndLoad = async () => {
+
     const signer = await getSigner(provider);
     setSigner(signer);
+    console.log("signer set to:", signer)
 
     const signerAddress = await signer.getAddress();
     setSignerAddress(signerAddress);
+    console.log("signerAddress set to:", signerAddress)
 
     const assetIds = await getAssetIds(signerAddress, signer);
     setAssetIds(assetIds);
