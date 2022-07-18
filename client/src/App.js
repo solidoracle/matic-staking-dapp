@@ -7,7 +7,7 @@ import NavBar from "./components/NavBar.jsx";
 import StakeModal from "./components/StakeModal.jsx";
 import { Bank, PiggyBank, Coin } from "react-bootstrap-icons";
 
-const CONTRACT_ADDRESS = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+const CONTRACT_ADDRESS = "0xFE092990323f4bB72a75d2537Af28bA164BF321b";
 
 function App() {
   // set providers as we are using useState. Providers are read only
