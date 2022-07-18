@@ -52,6 +52,7 @@ function App() {
     };
     onLoad(); // call when page loads
     getAssets(assetIds, signer);
+
   }, []); // finish up useEffect
 
   const isConnected = () => signer !== undefined; // checks if signer not equal to undefined -> wallet is hence connected
