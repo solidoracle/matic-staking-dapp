@@ -5,6 +5,8 @@ Packages to install
 DEPLOY
 npx hardhat run --network localhost scripts/1_deploy.js
 
+matic deployment
+npx hardhat run --network matic scripts/2_deploy.js
 
 
 FRONTEND
