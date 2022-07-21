@@ -4,8 +4,8 @@ const NavBar = props => {
     return (
         <>
          <div className="navBar">
-            <div className='navButton'> Markets </div>
-            <div className='navButton'> Assets </div>
+            <div className='navButton'> STAKING </div>
+            <div className='navButton'> DASHBOARD </div>
             {props.isConnected() ? (
                 <div className='connectButton'>
                     Connected
@@ -14,13 +14,10 @@ const NavBar = props => {
                 <div
                 onClick={() => props.connect()}
                 className="connectButton">
-                    Connect Wallet 
+                    Connect Wallet and Load Open Positions
                 </div>
             )}
-
-
          </div>
-         
         </>
     )
 }

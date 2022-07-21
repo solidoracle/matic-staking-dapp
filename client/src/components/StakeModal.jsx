@@ -8,6 +8,7 @@ const StakeModal = props => {
         stakingPercent,
         setAmount,
         stakePleg,
+        flexible,
     } = props
 
 
@@ -32,7 +33,7 @@ const StakeModal = props => {
                         </div>
 
                         <div className='row'>
-                            <h6 className='titleHeader stakingTerms'>{stakingLength} days @ {stakingPercent} APY</h6>
+                            <h6 className='titleHeader stakingTerms'>5 days @ {stakingPercent} APY</h6>
                         </div>
                         <div className='row'>
                            <div
@@ -42,13 +43,11 @@ const StakeModal = props => {
                                Stake
                             </div>
                         </div>
-
                     </div>
                 </div>        
             </div>      
         </>
     )
-
 }
 
 

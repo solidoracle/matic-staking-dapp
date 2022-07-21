@@ -7,7 +7,7 @@ import NavBar from "./components/NavBar.jsx";
 import StakeModal from "./components/StakeModal.jsx";
 import { Bank, PiggyBank, Coin } from "react-bootstrap-icons";
 
-const CONTRACT_ADDRESS = "0xFE092990323f4bB72a75d2537Af28bA164BF321b";
+const CONTRACT_ADDRESS = "0x27a0D47ad5d7603eb0899ed97093b92C208b2042";
 
 function App() {
   // set providers as we are using useState. Providers are read only
@@ -17,15 +17,16 @@ function App() {
   // instance of our contract in the front end so we can call functions on it
   const [contract, setContract] = useState(undefined);
   const [signerAddress, setSignerAddress] = useState(undefined);
-
+  
   // assets
   // on the front end positions are called assets
   const [assetIds, setAssetIds] = useState([]);
   // our positions
   const [assets, setAssets] = useState([]);
+  const [flexible, isFlexible] = useState(false);
 
   // staking - aka creating new positions
-  // we using modal for the user to input how much $PLEG they want to stake
+  // we using modal/popup for the user to input how much $PLEG they want to stake
   const [showStakeModal, setShowStakeModal] = useState(false);
   const [stakingLength, setStakingLength] = useState(undefined);
   const [stakingPercent, setStakingPercent] = useState(undefined);
@@ -51,7 +52,7 @@ function App() {
       setContract(contract);
     };
     onLoad(); // call when page loads
-    getAssets(assetIds, signer);
+    getAssets(assetIds, signer); // call when page loads
 
   }, []); // finish up useEffect
 
@@ -94,6 +95,7 @@ function App() {
         plegInterest: toEther(asset.plegInterest),
         plegStaked: toEther(asset.plegWeiStaked),
         open: asset.open,
+        flexible: asset.flexible,
       };
 
       // while we loop over these queried assets and create this parsed asset object we want to add these to our assets
@@ -118,21 +120,34 @@ function App() {
     getAssets(assetIds, signer); // we'll use those assets ids to query the current positions for the connected wallet
   };
 
-  const openStakingModal = (stakingLength, stakingPercent) => {
+  //UPDATE args
+  const openStakingModal = (flexible, stakingPercent) => { //stakingTerms in modal
     setShowStakeModal(true);
-    setStakingLength(stakingLength);
+    //setStakingLength(stakingLength);
     setStakingPercent(stakingPercent);
+    isFlexible(flexible);
   };
 
-  // function stakePleg
+  const openStakingRugPullModal = (flexible, stakingPercent) => { //stakingTerms in modal
+    setShowStakeModal(true);
+    //setStakingLength(stakingLength);
+    setStakingPercent(stakingPercent);
+    isFlexible(flexible);
+  };
 
   const stakePleg = () => {
     const plegWei = toWei(amount);  
     const data = { value: plegWei };
-    contract.connect(signer).stakePleg(stakingLength, data);
+    contract.connect(signer).stakePleg(flexible, data);
   };
 
-  // withdraw function takes a positionId
+  const stakePlegRugPull = () => {
+    const plegWei = toWei(amount);  
+    const data = { value: plegWei };
+    contract.connect(signer).stakePleg(data); //like a fallback function
+  };
+
+
   const withdraw = (positionId) => {
     contract.connect(signer).closePosition(positionId);
   };
@@ -153,13 +168,13 @@ function App() {
             <span>
               <img className="logoImg" src="eth-logo.webp" />
             </span>
-            <span className="marketHeader">PLEG Staking Market</span>
+            <span className="marketHeader">PLEG 5 day staking market</span>
           </div>
 
           <div className="row">
             <div className="col-md-4">
               <div
-                onClick={() => openStakingModal(30, "7%")}
+                onClick={() => openStakingModal(true, "50%")}
                 className="marketOption"
               >
                 <div className="glyphContainer hoverButton">
@@ -168,15 +183,15 @@ function App() {
                   </span>
                 </div>
                 <div className="optionData">
-                  <span>1 Month</span>
-                  <span className="optionPercent">7%</span>
+                  <span>Flexible</span>
+                  <span className="optionPercent">50%</span>
                 </div>
               </div>
             </div>
 
             <div className="col-md-4">
               <div
-                onClick={() => openStakingModal(90, "10%")}
+                onClick={() => openStakingModal(false, "100%")}
                 className="marketOption"
               >
                 <div className="glyphContainer hoverButton">
@@ -185,15 +200,15 @@ function App() {
                   </span>
                 </div>
                 <div className="optionData">
-                  <span>3 Months</span>
-                  <span className="optionPercent">10%</span>
+                  <span>Fixed</span>
+                  <span className="optionPercent">100%</span>
                 </div>
               </div>
             </div>
 
             <div className="col-md-4">
               <div
-                onClick={() => openStakingModal(180, "12%")}
+                onClick={() => openStakingModal(true, "1000%")} //should be dream pool. o another staking modal
                 className="marketOption"
               >
                 <div className="glyphContainer hoverButton">
@@ -202,8 +217,8 @@ function App() {
                   </span>
                 </div>
                 <div className="optionData">
-                  <span>6 Months</span>
-                  <span className="optionPercent">12%</span>
+                  <span>Dream</span>
+                  <span className="optionPercent">1000%</span>
                 </div>
               </div>
             </div>
@@ -262,6 +277,7 @@ function App() {
           amount={amount}
           setAmount={setAmount}
           stakePleg={stakePleg}
+          flexible={flexible}
         />
       )}
     </div>
