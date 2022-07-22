@@ -5,6 +5,8 @@ import artifacts from "./artifacts/contracts/staking.sol/Staking.json"; //that g
 
 import NavBar from "./components/NavBar.jsx";
 import StakeModal from "./components/StakeModal.jsx";
+import StakeModalRug from "./components/StakeModalRug.jsx";
+
 import { Bank, PiggyBank, Coin } from "react-bootstrap-icons";
 
 const CONTRACT_ADDRESS = "0x27a0D47ad5d7603eb0899ed97093b92C208b2042";
@@ -52,7 +54,7 @@ function App() {
       setContract(contract);
     };
     onLoad(); // call when page loads
-    getAssets(assetIds, signer); // call when page loads
+    //getAssets(assetIds, signer); repeats data
 
   }, []); // finish up useEffect
 
@@ -130,7 +132,6 @@ function App() {
 
   const openStakingRugPullModal = (flexible, stakingPercent) => { //stakingTerms in modal
     setShowStakeModal(true);
-    //setStakingLength(stakingLength);
     setStakingPercent(stakingPercent);
     isFlexible(flexible);
   };
@@ -144,7 +145,7 @@ function App() {
   const stakePlegRugPull = () => {
     const plegWei = toWei(amount);  
     const data = { value: plegWei };
-    contract.connect(signer).stakePleg(data); //like a fallback function
+    contract.connect(signer).stakePlegRugPull(data); //like a fallback function
   };
 
 
@@ -208,7 +209,7 @@ function App() {
 
             <div className="col-md-4">
               <div
-                onClick={() => openStakingModal(true, "1000%")} //should be dream pool. o another staking modal
+                onClick={() => openStakingRugPullModal(true, "1000%")} //should be dream pool. o another staking modal
                 className="marketOption"
               >
                 <div className="glyphContainer hoverButton">
@@ -277,6 +278,17 @@ function App() {
           amount={amount}
           setAmount={setAmount}
           stakePleg={stakePleg}
+          flexible={flexible}
+        />
+      )}
+      {showStakeModal && (
+        <StakeModalRug
+          onClose={() => setShowStakeModal(false)}
+          stakingLength={stakingLength}
+          stakingPercent={stakingPercent}
+          amount={amount}
+          setAmount={setAmount}
+          stakePlegRugPull={stakePlegRugPull}
           flexible={flexible}
         />
       )}
