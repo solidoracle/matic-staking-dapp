@@ -235,7 +235,7 @@ function App() {
             <div className="col-md-2">Assets</div>
             <div className="col-md-2">Percent Interest</div>
             <div className="col-md-2">Staked</div>
-            <div className="col-md-2">Interest</div>
+            <div className="col-md-2">Type</div>
             <div className="col-md-2">Days remaining</div>
             <div className="col-md-2"></div>
           </div>
@@ -251,7 +251,7 @@ function App() {
               </div>
               <div className="col-md-2">{a.percentInterest} %</div>
               <div className="col-md-2">{a.plegStaked}</div>
-              <div className="col-md-2">{a.plegInterest}</div>
+              <div className="col-md-2">{a.flexible}</div>
               <div className="col-md-2">{a.daysRemainig}</div>
               <div className="col-md-2">
                 {a.open ? (
