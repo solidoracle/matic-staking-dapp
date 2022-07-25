@@ -1,6 +1,31 @@
+Welcome to the STAKING APP
+
+Initialize dependencies, by opening terminal:
+npm install
+cd client
 npm install
 
-add your keys on .env
+We are deploying on matic, remember to add your keys on .env
+Deployment script
+npx hardhat run --network matic scripts/2_deploy.js
+
+Remember to past your staking contract number in the App.js file in Client
+
+To start frontend:
+cd client
+npm start
+
+To run tests:
+npx hardhat test
+
+
+
+
+
+
+
+
+
 
 deploy on matic
 npx hardhat run --network matic scripts/2_deploy.js
