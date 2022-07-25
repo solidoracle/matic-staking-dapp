@@ -17,13 +17,13 @@ async function main() {
     console.log("Account balance:", (await deployer.getBalance()).toString());
   
     const Staking = await ethers.getContractFactory("Staking");
-    const staking = await Staking.deploy();
+    const staking = await Staking.deploy('0xde6A914c93e9c5E2785eAb6b5a005c6B6F89C1e3');
     await staking.deployed();
   
     console.log("Staking contract address:", staking.address);
   
     // We also save the contract's artifacts and address in the frontend directory
-    saveFrontendFiles(staking); //???
+    saveFrontendFiles(staking); 
   }
   
   function saveFrontendFiles(staking) {
