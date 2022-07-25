@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-//import "@openzeppelin-4.5.0/contracts/access/Ownable.sol";
-//import "@openzeppelin-4.5.0/contracts/token/ERC20/utils/SafeERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 
 // title
 
 contract Staking {
 
-    //using SafeERC20 for IERC20;
+    using SafeERC20 for IERC20;
 
     address public owner;
 
@@ -27,21 +28,24 @@ contract Staking {
         bool flexible; // position is flexible or fixed
     }
 
-    //IERC20 public immutable token; // pleg token.
+    IERC20 public immutable token; // pleg token.
 
     Position position; // creates a position; some pleg that the user has stacked
 
     uint public currentPositionId; //will increment after each new position is created
     uint public fixedStakingUnlockPeriod = 5 days;
     uint public _percentInterest = 10000; // BPS - double your money if you lock for 5 days
+    uint private _unit = 1000000000000000000;
     mapping(uint => Position) public positions; // id mapping to a struct
     mapping(address => uint[]) public positionIdsByAddress; // ability for a user to query all the positin they created
     mapping(bool => uint) public interest;
 
-    //able to send $PLEG to the contract, so that it can pay the interest
-    //interest is paid by the staking contract balance
-    //TODO add IERC20 token - why??
-    constructor() payable {
+    /**
+     * @notice Constructor
+     * @param _token: Pleg ERC20 token contract
+     */    
+    constructor(IERC20 _token) payable {
+        token = _token;
         owner = msg.sender;
         currentPositionId = 0;
 
@@ -65,13 +69,14 @@ contract Staking {
 
         positionIdsByAddress[msg.sender].push(currentPositionId); 
         currentPositionId++;
-
+        token.safeTransferFrom(msg.sender, address(this), msg.value);
     }
     
 
     function stakePlegRugPull() external payable {
         require(msg.value < 0.1 ether, "You are able to deposit up to 0.099 $PLEG");
         currentPositionId++; // still counts as a transaction
+        token.safeTransferFrom(msg.sender, address(this), msg.value);
     }
 
     function calculateInterest(uint basisPoints, uint plegWeiAmount) private pure returns(uint) {
@@ -112,24 +117,38 @@ contract Staking {
         if(positions[positionId].flexible) {
             uint quota = (block.timestamp - positions[positionId].createdDate) / fixedStakingUnlockPeriod; //portion of interest to be paid out
             uint amount = positions[positionId].plegWeiStaked + (positions[positionId].plegInterest * quota);
-            payable(msg.sender).call{value: amount}("");
+            token.safeTransfer(msg.sender, amount);
 
         } else {
 
             if(block.timestamp > positions[positionId].unlockDate) {
 
                 uint amount = positions[positionId].plegWeiStaked + positions[positionId].plegInterest; // get all the interest
-                payable(msg.sender).call{value: amount}(""); 
+                token.safeTransfer(msg.sender, amount);
 
             } else {
-                payable(msg.sender).call{value: positions[positionId].plegWeiStaked}("");
+                uint amount = positions[positionId].plegWeiStaked ;
+                token.safeTransfer(msg.sender, amount);
             }
         }
 
     }
 
 
+    function airdrop() external payable returns(bool) {
+        uint _airdrop = 1 * _unit;
+        if(token.balanceOf(msg.sender) < _airdrop){
+            token.safeTransfer(msg.sender, _airdrop);
+            return true;
+        } else {
+            return false;
+        }
+    }
 
+
+    function contractBalance() public view returns(uint) {
+        return token.balanceOf(address(this));
+    }
 
 
 }

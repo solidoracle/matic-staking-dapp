@@ -9,7 +9,7 @@ import StakeModalRug from "./components/StakeModalRug.jsx";
 
 import { Bank, PiggyBank, Coin } from "react-bootstrap-icons";
 
-const CONTRACT_ADDRESS = "0x27a0D47ad5d7603eb0899ed97093b92C208b2042";
+const CONTRACT_ADDRESS = "0x537cce5B49EC0E5F0B487FB181bb37e9Ae96F0D5";
 
 function App() {
   // set providers as we are using useState. Providers are read only
@@ -19,6 +19,7 @@ function App() {
   // instance of our contract in the front end so we can call functions on it
   const [contract, setContract] = useState(undefined);
   const [signerAddress, setSignerAddress] = useState(undefined);
+  const [balance, setBalance] = useState(null);
   
   // assets
   // on the front end positions are called assets
@@ -67,6 +68,19 @@ function App() {
     setSigner(signer);
     return signer; // we return it here immediately bacause when we set the signer setSigner(signer) it might not be available immediately. So we use that value immediately
   };
+
+
+
+  const getBalance = async () => {
+        const signer = await getSigner(provider);
+        const balanceBigN = await contract.connect(signer).contractBalance();
+        let balance = balanceBigN.toString();
+
+        console.log("Contract $PLEG balance is ", balance)
+        setBalance(balance);
+  }
+
+
 
   const getAssetIds = async (address, signer) => {
     const assetIds = await contract
@@ -162,6 +176,11 @@ function App() {
           connect={connectAndLoad}
         />
       </div>
+
+      <button onClick={getBalance}>
+          Contract Pleg Balance
+        </button>
+
 
       <div className="appBody">
         <div className="marketContainer">
