@@ -25,7 +25,7 @@ To deploy on MATIC Testnet add your keys to a .env file then run
 npx hardhat run --network matic scripts/2_deploy.js
 ```
 
-Remember to past your staking contract number in the App.js file in Client
+Remember to paste your staking contract number in the App.js file in Client
 
 
 ## Running Tests
