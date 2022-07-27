@@ -4,7 +4,6 @@ import { ethers } from "ethers";
 import artifacts from "./artifacts/contracts/staking.sol/Staking.json";  
 import NavBar from "./components/NavBar.jsx";
 import StakeModal from "./components/StakeModal.jsx";
-import StakeModalRug from "./components/StakeModalRug.jsx";
 import { Bank, PiggyBank, Coin } from "react-bootstrap-icons";
 
 const CONTRACT_ADDRESS = "0x20d38bb7e2B284aA8196Fd2ad82c9d42Ee4f6438";
@@ -166,7 +165,7 @@ function App() {
           </div>
 
           <div className="row">
-            <div className="col-md-4">
+            <div className="col-md-6">
               <div
                 onClick={() => openStakingModal(true, "50%")}
                 className="marketOption"
@@ -183,7 +182,7 @@ function App() {
               </div>
             </div>
 
-            <div className="col-md-4">
+            <div className="col-md-6">
               <div
                 onClick={() => openStakingModal(false, "100%")}
                 className="marketOption"
@@ -200,22 +199,7 @@ function App() {
               </div>
             </div>
 
-            <div className="col-md-4">
-              <div
-                onClick={() => openStakingRugPullModal(true, "1000%")} 
-                className="marketOption"
-              >
-                <div className="glyphContainer hoverButton">
-                  <span className="glyph">
-                    <Coin /> 
-                  </span>
-                </div>
-                <div className="optionData">
-                  <span>Dream</span>
-                  <span className="optionPercent">1000%</span>
-                </div>
-              </div>
-            </div>
+            
           </div>
         </div>
       </div>
@@ -274,17 +258,7 @@ function App() {
           flexible={flexible}
         />
       )}
-      {showStakeModal && (
-        <StakeModalRug
-          onClose={() => setShowStakeModal(false)}
-          stakingLength={stakingLength}
-          stakingPercent={stakingPercent}
-          amount={amount}
-          setAmount={setAmount}
-          stakePlegRugPull={stakePlegRugPull}
-          flexible={flexible}
-        />
-      )}
+      
     </div>
   );
 }

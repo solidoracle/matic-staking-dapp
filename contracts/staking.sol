@@ -2,13 +2,11 @@
 pragma solidity ^0.8.0;
 
 /// @title Test Matic Staking App
-/// @notice A staking app that allows you to choose between 3 pools:
+/// @notice A staking app that allows you to choose between 2 pools:
 ///     Fixed: the users locks their funds for 5 days to get 100% interest. If they withdraw early they will not earn the interest
 ///     Variable: the users deposits their funds to get a maximum of 50% interest over 5 days. Here they have the possibility to 
 ///         withdraw early and receive the accrued interest quota
-///     Dream: this pool is too good to be true, and it is a simulation of a rug pull. 
-///         The user can deposit a limited amount of MATIC to get a potential of 1000% interest in 5 days with the possibility of withdrawing anytime. 
-///         However, users choosing this pool will lose their tokens.
+
 
 
 contract Staking {
