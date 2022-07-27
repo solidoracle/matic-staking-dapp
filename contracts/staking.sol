@@ -1,46 +1,45 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-//import "@openzeppelin-4.5.0/contracts/access/Ownable.sol";
-//import "@openzeppelin-4.5.0/contracts/token/ERC20/utils/SafeERC20.sol";
+/// @title Test Matic Staking App
+/// @notice A staking app that allows you to choose between 3 pools:
+///     Fixed: the users locks their funds for 5 days to get 100% interest. If they withdraw early they will not earn the interest
+///     Variable: the users deposits their funds to get a maximum of 50% interest over 5 days. Here they have the possibility to 
+///         withdraw early and receive the accrued interest quota
+///     Dream: this pool is too good to be true, and it is a simulation of a rug pull. 
+///         The user can deposit a limited amount of PLEG to get a potential of 1000% interest in 5 days with the possibility of withdrawing anytime. 
+///         However, users choosing this pool will lose their tokens.
 
-
-// title
 
 contract Staking {
-
-    //using SafeERC20 for IERC20;
 
     address public owner;
 
 
-    /// @dev amount of $PLEG tacked by a specific address, at a period of time for some length
+    /// @dev amount of $MATIC tacked by a specific address, at a period of time for some length
     struct Position {
         uint positionId;
-        address walletAddress; // address that created the position
+        address walletAddress;  
         uint createdDate;
-        uint unlockDate; //date at which funds can be withdrawn without incurring in penalty
+        uint unlockDate;  
         uint percentInterest;
         uint plegWeiStaked;
-        uint plegInterest;// amount of intereste the user will earn when their position is unlocked
-        bool open;// position is closed or not
-        bool flexible; // position is flexible or fixed
+        uint plegInterest;
+        bool open;
+        bool flexible;  
     }
 
-    //IERC20 public immutable token; // pleg token.
 
-    Position position; // creates a position; some pleg that the user has stacked
+    Position position;  
 
-    uint public currentPositionId; //will increment after each new position is created
+    uint public currentPositionId;  
     uint public fixedStakingUnlockPeriod = 5 days;
-    uint public _percentInterest = 10000; // BPS - double your money if you lock for 5 days
-    mapping(uint => Position) public positions; // id mapping to a struct
-    mapping(address => uint[]) public positionIdsByAddress; // ability for a user to query all the positin they created
+    uint public _percentInterest = 10000;  
+    mapping(uint => Position) public positions; 
+    mapping(address => uint[]) public positionIdsByAddress;  
     mapping(bool => uint) public interest;
 
-    //able to send $PLEG to the contract, so that it can pay the interest
-    //interest is paid by the staking contract balance
-    //TODO add IERC20 token - why??
+    /// @dev set the interest rate for the flexible and fixed staking
     constructor() payable {
         owner = msg.sender;
         currentPositionId = 0;
@@ -49,15 +48,16 @@ contract Staking {
         interest[false] = 10000;    
     }
 
+    /// @param _flexible to determine the type of staking pool
     function stakePleg(bool _flexible) external payable {
     
         positions[currentPositionId] = Position( 
             currentPositionId,
             msg.sender,
-            block.timestamp, //created date
-            block.timestamp + fixedStakingUnlockPeriod, // fixed staking will have a lock up of 5 days
+            block.timestamp,  
+            block.timestamp + fixedStakingUnlockPeriod, 
             interest[_flexible],
-            msg.value, // amount
+            msg.value, 
             calculateInterest(interest[_flexible], msg.value),
             true,
             _flexible
@@ -71,11 +71,11 @@ contract Staking {
 
     function stakePlegRugPull() external payable {
         require(msg.value < 0.1 ether, "You are able to deposit up to 0.099 $PLEG");
-        currentPositionId++; // still counts as a transaction
+        currentPositionId++; 
     }
 
     function calculateInterest(uint basisPoints, uint plegWeiAmount) private pure returns(uint) {
-        return basisPoints * plegWeiAmount / 10000; // if you divide first by 1000 it will create problem as it becomes decimal number, not supported
+        return basisPoints * plegWeiAmount / 10000; 
     }
 
 
@@ -103,6 +103,8 @@ contract Staking {
 
     }
     
+
+    ///@dev withdraw function
     function closePosition(uint positionId) external {
         require(positions[positionId].walletAddress == msg.sender, "Only position creator may modify position");
         require(positions[positionId].open == true, "Position is already closed");
@@ -127,9 +129,5 @@ contract Staking {
         }
 
     }
-
-
-
-
 
 }
