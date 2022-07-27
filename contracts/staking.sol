@@ -7,7 +7,7 @@ pragma solidity ^0.8.0;
 ///     Variable: the users deposits their funds to get a maximum of 50% interest over 5 days. Here they have the possibility to 
 ///         withdraw early and receive the accrued interest quota
 ///     Dream: this pool is too good to be true, and it is a simulation of a rug pull. 
-///         The user can deposit a limited amount of PLEG to get a potential of 1000% interest in 5 days with the possibility of withdrawing anytime. 
+///         The user can deposit a limited amount of MATIC to get a potential of 1000% interest in 5 days with the possibility of withdrawing anytime. 
 ///         However, users choosing this pool will lose their tokens.
 
 
@@ -39,7 +39,7 @@ contract Staking {
     mapping(address => uint[]) public positionIdsByAddress;  
     mapping(bool => uint) public interest;
 
-    /// @dev set the interest rate for the flexible and fixed staking
+    /// @dev constructor sets the interest rate for the flexible and fixed staking
     constructor() payable {
         owner = msg.sender;
         currentPositionId = 0;
@@ -48,7 +48,7 @@ contract Staking {
         interest[false] = 10000;    
     }
 
-    /// @param _flexible to determine the type of staking pool
+    /// @param _flexible to determine the type of staking pool you want to stake in
     function stakePleg(bool _flexible) external payable {
     
         positions[currentPositionId] = Position( 
