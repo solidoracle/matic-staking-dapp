@@ -1,26 +1,42 @@
+# MATIC STAKING DAPP
 
-Welcome to the STAKING APP
+A simple dapp that allows you to stake test matic. 
 
-Initialize dependencies, by opening terminal: npm install cd client npm install
 
-We are deploying on matic, remember to add your keys on .env 
+## Deployment
 
-Deployment script 
+To deploy the project first install npm
+
+```bash
+npm install
+cd client 
+npm install
+```
+
+To deploy on MATIC Testnet add your keys to a .env file then run
+
+```bash
 npx hardhat run --network matic scripts/2_deploy.js
+```
 
 Remember to past your staking contract number in the App.js file in Client
 
-To start frontend: cd client npm start
 
-To run tests: npx hardhat test
+## Running Tests
 
-deploy on matic npx hardhat run --network matic scripts/2_deploy.js
+To run tests, run the following command
 
-start frontend cd client npm start
+```bash
+  npx hardhat test
+```
 
-TEST npx hardhat test
 
-DEPLOY npx hardhat run --network localhost scripts/1_deploy.js gt FRONTEND // client is the directory where we put all our front end code npx create-react-app client (if there is a conflict with src if means you have already deployed the contract and created the directory, so delete client folder and run the command again without first deploying) cd client npm i react-bootstrap-icons ethers bootstrap
+## Start Front End
 
-npm start to start the app
+
+```bash
+  cd client 
+  npm start
+```
+
 

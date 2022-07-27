@@ -17,7 +17,7 @@ const StakeModal = props => {
             <div className='modal-class' onClick={props.onClose}>
                 <div className='modal-content' onClick={e => e.stopPropagation()}>
                     <div className='modal-body'>
-                        <h2 className='titleHeader'>Stake Pleg</h2>
+                        <h2 className='titleHeader'>Stake MATIC</h2>
 
                         <div className='row'>
                             <div className='col-md-9 fieldContainer'>
@@ -28,7 +28,7 @@ const StakeModal = props => {
                                 />
                             </div>
                             <div className='col-md-3 inputFieldUnitsContainer'>
-                                <span>PLEG</span>
+                                <span>MATIC</span>
                             </div>
                         </div>
 

@@ -168,7 +168,7 @@ function App() {
             <span>
               <img className="logoImg" src="eth-logo.webp" />
             </span>
-            <span className="marketHeader">PLEG 5 day staking market</span>
+            <span className="marketHeader">MATIC 5 day staking market</span>
           </div>
 
           <div className="row">
