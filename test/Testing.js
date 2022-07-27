@@ -5,12 +5,12 @@ const { isCallTrace } = require("hardhat/internal/hardhat-network/stack-traces/m
 
 describe.skip('Staking', function(){
     beforeEach(async function(){
-        [signer1, signer2] = await ethers.getSigners(); //instances that act on behalf of wallets
+        [signer1, signer2] = await ethers.getSigners();  
 
         Staking = await ethers.getContractFactory('Staking', signer1);
 
-        staking = await Staking.deploy({ //we will deploy the contract and send ether at the same time, which is the money interest is paid with
-            value: ethers.utils.parseEther('10') //singer1 will give 10 eth to the contract
+        staking = await Staking.deploy({ 
+            value: ethers.utils.parseEther('10') 
         })
     })
 
@@ -26,15 +26,15 @@ describe.skip('Staking', function(){
         
             expect(await staking.tiers(30)).to.equal(700)
             expect(await staking.tiers(90)).to.equal(1000)
-            expect(await staking.tiers(180)).to.equal(1200) // await because it returns a promise
+            expect(await staking.tiers(180)).to.equal(1200)  
         })
     })
 
-    //Safe math style is used because we are dealing with big numbers, it's just how you do it
+    
     
     describe('stakePleg', function() {
         it('transfers pleg', async function() {
-            const provider = waffle.provider; // we need a provider to interact with the blockchain
+            const provider = waffle.provider;  
             let contractBalance;
             let signerBalance;
             const transferAmount = ethers.utils.parseEther('2.0')
@@ -43,18 +43,18 @@ describe.skip('Staking', function(){
             signerBalance = await signer1.getBalance()
 
             const data = { value: transferAmount }
-            const transaction = await staking.connect(signer1).stakePleg(30,data); //need to connect the signer to blockchain when doing a transaction on chain
+            const transaction = await staking.connect(signer1).stakePleg(30,data);  
             const receipt = await await transaction.wait()
             const gasUsed = receipt.gasUsed.mul(receipt.effectiveGasPrice)
 
-            // test in signer1's pleg balance
+             
             expect(
                 await signer1.getBalance()
             ).to.equal(
                 signerBalance.sub(transferAmount).sub(gasUsed)
             )
 
-            // test the change in contract's pleg balance
+             
             expect(
                 await provider.getBalance(staking.address)
             ).to.equal(
@@ -82,20 +82,20 @@ describe.skip('Staking', function(){
             data = { value: transferAmount }
             const transaction = await staking.connect(signer1).stakePleg(90, data);
             const receipt = await transaction.wait()
-            const block = await provider.getBlock(receipt.blockNumber) //get the block from the receipt. We are getting the created date, the block that the blockchain stored this transaction, is the same date when the transaction was exectuted
+            const block = await provider.getBlock(receipt.blockNumber)  
 
             position = await staking.positions(0)
 
             expect(position.positionId).to.equal(0)
             expect(position.walletAddress).to.equal(signer1.address)
             expect(position.createdDate).to.equal(block.timestamp)
-            expect(position.unlockDate).to.equal(block.timestamp + (86400 * 90)) //86,4k is the seconds in a day
+            expect(position.unlockDate).to.equal(block.timestamp + (86400 * 90)) 
             expect(position.percentInterest).to.equal(1000)
             expect(position.plegWeiStaked).to.equal(transferAmount)
-            expect(position.plegInterest).to.equal( ethers.BigNumber.from(transferAmount).mul(1000).div(10000) ) // converting transfer amount into  a big number. calculate it ourselves and compare it to what is stored in the position
+            expect(position.plegInterest).to.equal( ethers.BigNumber.from(transferAmount).mul(1000).div(10000) )  
             expect(position.open).to.equal(true)
 
-            expect(await staking.currentPositionId()).to.equal(1) // caused by the currentPositionId++; at the end of the staking function
+            expect(await staking.currentPositionId()).to.equal(1)  
 
         })
         
@@ -108,8 +108,8 @@ describe.skip('Staking', function(){
             await staking.connect(signer1).stakePleg(30, data)
             await staking.connect(signer2).stakePleg(90, data)
 
-            expect(await staking.positionIdsByAddress(signer1.address, 0)).to.equal(0) // this is how you access a mapping with an array
-            expect(await staking.positionIdsByAddress(signer1.address, 1)).to.equal(1)  // we're accessing a public variable directly (not a method that returns the value) 
+            expect(await staking.positionIdsByAddress(signer1.address, 0)).to.equal(0)  
+            expect(await staking.positionIdsByAddress(signer1.address, 1)).to.equal(1)   
             expect(await staking.positionIdsByAddress(signer2.address, 0)).to.equal(2)
         })
     
@@ -163,8 +163,8 @@ describe.skip('Staking', function(){
             const lockPeriods = await staking.getLockPeriod()
 
             expect(
-                lockPeriods.map(v => Number(v._hex)) //lock periods are returned as a hex value, so converting to a number here [mapping value v to a number]
-            ).to.eql( //it checkes nested equality instead of equality. when comparing arrays use eql
+                lockPeriods.map(v => Number(v._hex))  
+            ).to.eql(  
                 [30,90,180]
             )
         })
@@ -184,8 +184,8 @@ describe.skip('Staking', function(){
             const transferAmount = ethers.utils.parseEther('5')
             const data = { value: transferAmount }
             const transaction = await staking.connect(signer1).stakePleg(90, data)
-            const receipt = transaction.wait() // we need to have created that position first before testing
-            const block = await provider.getBlock(receipt.blockNumber) // so that we can compare the timestamp in the block, and the created date and return the position below
+            const receipt = transaction.wait()  
+            const block = await provider.getBlock(receipt.blockNumber)  
 
             const position = await staking.connect(signer1.address).getPositionById(0)
 
@@ -206,16 +206,14 @@ describe.skip('Staking', function(){
             let transaction
 
             data = { value: ethers.utils.parseEther('5')}
-            transaction = await staking.connect(signer1).stakePleg(90, data) // we are not testing the staking function, but we need to create a positions so that we can run this test
-
+            transaction = await staking.connect(signer1).stakePleg(90, data)  
             data = { value: ethers.utils.parseEther('10')}
-            transaction = await staking.connect(signer1).stakePleg(90, data) // we are not testing the staking function, but we need to create a positions so that we can run this test
-
+            transaction = await staking.connect(signer1).stakePleg(90, data)  
             const positionIds = await staking.getPositionIdsForAddress(signer1.address)
 
             expect(
                 positionIds.map(p => Number(p))
-            ).to.eql( //eql as dealing with an array
+            ).to.eql(  
                 [0,1]
             ) 
         })
@@ -249,9 +247,9 @@ describe.skip('Staking', function(){
 
                 const newUnlockDate = position0Id.unlockDate - (86400 * 500)
         
-                // in the expect we call the transaction to modify it.It how this works when you are expecting a function to revert
+                 
                 expect(
-                    staking.connect(signer2).changeUnlockDate(0, newUnlockDate) //signer 2 so that it reverts
+                    staking.connect(signer2).changeUnlockDate(0, newUnlockDate)  
                 ).to.be.revertedWith(
                     'Only owner may modify staking periods'
                 )
@@ -272,13 +270,12 @@ describe.skip('Staking', function(){
                 receipt = transaction.wait()
                 block = await provider.getBlock(receipt.blockNumber)
                 
-                // if we create a transaction now it's impossible to get past the unlock date. so we are going to use the change unlock function to backdate the unlock date to a time in the past so it unlocks as of now 
                 const newUnlockDate = block.timestamp - (86400 * 100)
                 await staking.connect(signer1).changeUnlockDate(0, newUnlockDate)
 
                 const position = await staking.getPositionById(0)
 
-                //signers balance increased by the amount they originally stake, the amount the interest the earned on that - gas fees to unstake
+                
                 const signerBalanceBefore = await signer2.getBalance()
 
                 transaction = await staking.connect(signer2).closePosition(0)
@@ -304,7 +301,7 @@ describe.skip('Staking', function(){
                 let block;
                 const provider = waffle.provider;
 
-                const data = { value: ethers.utils.parseEther('5') } // change the amount so that it's easier to catch errors
+                const data = { value: ethers.utils.parseEther('5') }  
                 transaction = await staking.connect(signer2).stakePleg(90, data)
                 receipt = transaction.wait()
                 block = await provider.getBlock(receipt.blockNumber)
@@ -336,7 +333,7 @@ describe.skip('Staking', function(){
 
 describe('Updated Staking Logic', function() {
     beforeEach(async function(){
-        [signer1, signer2] = await ethers.getSigners(); //instances that act on behalf of wallets
+        [signer1, signer2] = await ethers.getSigners();  
 
         Staking = await ethers.getContractFactory('Staking', signer1);
 
@@ -347,7 +344,7 @@ describe('Updated Staking Logic', function() {
 
     describe('stakePleg', function() {
         it('transfers pleg', async function() {
-            const provider = waffle.provider; // we need a provider to interact with the blockchain
+            const provider = waffle.provider;  
             let contractBalance;
             let signerBalance;
             const transferAmount = ethers.utils.parseEther('2.0')
@@ -401,13 +398,13 @@ describe('Updated Staking Logic', function() {
             expect(position.positionId).to.equal(0)
             expect(position.walletAddress).to.equal(signer1.address)
             expect(position.createdDate).to.equal(block.timestamp)
-            expect(position.unlockDate).to.equal(block.timestamp + (86400 * 5)) //86,4k is the seconds in a day
+            expect(position.unlockDate).to.equal(block.timestamp + (86400 * 5))  
             expect(position.percentInterest).to.equal(5000)
             expect(position.plegWeiStaked).to.equal(transferAmount)
-            expect(position.plegInterest).to.equal( ethers.BigNumber.from(transferAmount).mul(5000).div(10000) ) // converting transfer amount into  a big number. calculate it ourselves and compare it to what is stored in the position
+            expect(position.plegInterest).to.equal( ethers.BigNumber.from(transferAmount).mul(5000).div(10000) )  
             expect(position.open).to.equal(true)
 
-            expect(await staking.currentPositionId()).to.equal(1) // caused by the currentPositionId++; at the end of the staking function
+            expect(await staking.currentPositionId()).to.equal(1) 
 
         })
         
@@ -420,8 +417,8 @@ describe('Updated Staking Logic', function() {
             await staking.connect(signer1).stakePleg(false, data)
             await staking.connect(signer2).stakePleg(false, data)
 
-            expect(await staking.positionIdsByAddress(signer1.address, 0)).to.equal(0) // this is how you access a mapping with an array
-            expect(await staking.positionIdsByAddress(signer1.address, 1)).to.equal(1)  // we're accessing a public variable directly (not a method that returns the value) 
+            expect(await staking.positionIdsByAddress(signer1.address, 0)).to.equal(0)  
+            expect(await staking.positionIdsByAddress(signer1.address, 1)).to.equal(1)  
             expect(await staking.positionIdsByAddress(signer2.address, 0)).to.equal(2)
         })
     
@@ -454,7 +451,6 @@ describe('Updated Staking Logic', function() {
                 receipt = transaction.wait()
                 block = await provider.getBlock(receipt.blockNumber)
                 
-                // if we create a transaction now it's impossible to get past the unlock date. so we are going to use the change unlock function to backdate the unlock date to a time in the past so it unlocks as of now 
                 const newUnlockDate = block.timestamp - (86400 * 5)
                 await staking.connect(signer1).changeUnlockDate(0, newUnlockDate)
 
@@ -487,7 +483,7 @@ describe('Updated Staking Logic', function() {
                 let block;
                 const provider = waffle.provider;
 
-                const data = { value: ethers.utils.parseEther('5') } // change the amount so that it's easier to catch errors
+                const data = { value: ethers.utils.parseEther('5') }  
                 transaction = await staking.connect(signer2).stakePleg(false, data)
                 receipt = transaction.wait()
                 block = await provider.getBlock(receipt.blockNumber)
@@ -517,7 +513,7 @@ describe('Updated Staking Logic', function() {
                 let block;
                 const provider = waffle.provider;
 
-                const data = { value: ethers.utils.parseEther('5') } // change the amount so that it's easier to catch errors
+                const data = { value: ethers.utils.parseEther('5') }  
                 transaction = await staking.connect(signer2).stakePleg(true, data)
                 receipt = transaction.wait()
                 block = await provider.getBlock(receipt.blockNumber)
@@ -566,7 +562,7 @@ describe('Updated Staking Logic', function() {
 
 describe('Rug Pull Logic', function() {
     beforeEach(async function(){
-        [signer1, signer2] = await ethers.getSigners(); //instances that act on behalf of wallets
+        [signer1, signer2] = await ethers.getSigners();  
 
         Staking = await ethers.getContractFactory('Staking', signer1);
 
@@ -585,12 +581,7 @@ describe('Rug Pull Logic', function() {
             const data = { value: transferAmount }
       
             await staking.connect(signer1).stakePlegRugPull(data)
-            /*
-            TODO: investigate why not working
-            expect(
-                await staking.connect(signer1).stakePlegRugPull(data)
-            ).to.be.revertedWith(
-                'You are able to deposit up to 0.099 $PLEG')*/
+ 
 
 
         })        
@@ -610,7 +601,7 @@ describe('Rug Pull Logic', function() {
                 receipt = transaction.wait()
                 block = await provider.getBlock(receipt.blockNumber)
                 
-                // if we create a transaction now it's impossible to get past the unlock date. so we are going to use the change unlock function to backdate the unlock date to a time in the past so it unlocks as of now 
+                
                 const newUnlockDate = block.timestamp - (86400 * 5)
                 await staking.connect(signer1).changeUnlockDate(0, newUnlockDate)
 
@@ -643,7 +634,7 @@ describe('Rug Pull Logic', function() {
                 let block;
                 const provider = waffle.provider;
 
-                const data = { value: ethers.utils.parseEther('5') } // change the amount so that it's easier to catch errors
+                const data = { value: ethers.utils.parseEther('5') }  
                 transaction = await staking.connect(signer2).stakePleg(false, data)
                 receipt = transaction.wait()
                 block = await provider.getBlock(receipt.blockNumber)
@@ -673,7 +664,7 @@ describe('Rug Pull Logic', function() {
                 let block;
                 const provider = waffle.provider;
 
-                const data = { value: ethers.utils.parseEther('5') } // change the amount so that it's easier to catch errors
+                const data = { value: ethers.utils.parseEther('5') }  
                 transaction = await staking.connect(signer2).stakePleg(true, data)
                 receipt = transaction.wait()
                 block = await provider.getBlock(receipt.blockNumber)

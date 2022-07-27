@@ -37,8 +37,8 @@
       ]
     },
     "/home/solidoracle/Documents/matic-staking-dapp/contracts/staking.sol": {
-      "lastModificationDate": 1658925258984,
-      "contentHash": "f389db1c7abbbfb706a6c0a026cc8c86",
+      "lastModificationDate": 1658928110255,
+      "contentHash": "1942e04d1f8b689d709075f8ff22308e",
       "sourceName": "contracts/staking.sol",
       "solcConfig": {
         "version": "0.8.0",
