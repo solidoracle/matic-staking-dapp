@@ -5,11 +5,9 @@ import artifacts from "./artifacts/contracts/staking.sol/Staking.json"; //that g
 
 import NavBar from "./components/NavBar.jsx";
 import StakeModal from "./components/StakeModal.jsx";
-import StakeModalRug from "./components/StakeModalRug.jsx";
-
 import { Bank, PiggyBank, Coin } from "react-bootstrap-icons";
 
-const CONTRACT_ADDRESS = "0x537cce5B49EC0E5F0B487FB181bb37e9Ae96F0D5";
+const CONTRACT_ADDRESS = "0x27a0D47ad5d7603eb0899ed97093b92C208b2042";
 
 function App() {
   // set providers as we are using useState. Providers are read only
@@ -19,7 +17,6 @@ function App() {
   // instance of our contract in the front end so we can call functions on it
   const [contract, setContract] = useState(undefined);
   const [signerAddress, setSignerAddress] = useState(undefined);
-  const [balance, setBalance] = useState(null);
   
   // assets
   // on the front end positions are called assets
@@ -55,7 +52,7 @@ function App() {
       setContract(contract);
     };
     onLoad(); // call when page loads
-    //getAssets(assetIds, signer); repeats data
+    getAssets(assetIds, signer); // call when page loads
 
   }, []); // finish up useEffect
 
@@ -68,19 +65,6 @@ function App() {
     setSigner(signer);
     return signer; // we return it here immediately bacause when we set the signer setSigner(signer) it might not be available immediately. So we use that value immediately
   };
-
-
-
-  const getBalance = async () => {
-        const signer = await getSigner(provider);
-        const balanceBigN = await contract.connect(signer).contractBalance();
-        let balance = balanceBigN.toString();
-
-        console.log("Contract $PLEG balance is ", balance)
-        setBalance(balance);
-  }
-
-
 
   const getAssetIds = async (address, signer) => {
     const assetIds = await contract
@@ -146,6 +130,7 @@ function App() {
 
   const openStakingRugPullModal = (flexible, stakingPercent) => { //stakingTerms in modal
     setShowStakeModal(true);
+    //setStakingLength(stakingLength);
     setStakingPercent(stakingPercent);
     isFlexible(flexible);
   };
@@ -159,7 +144,7 @@ function App() {
   const stakePlegRugPull = () => {
     const plegWei = toWei(amount);  
     const data = { value: plegWei };
-    contract.connect(signer).stakePlegRugPull(data); //like a fallback function
+    contract.connect(signer).stakePleg(data); //like a fallback function
   };
 
 
@@ -176,11 +161,6 @@ function App() {
           connect={connectAndLoad}
         />
       </div>
-
-      <button onClick={getBalance}>
-          Contract Pleg Balance
-        </button>
-
 
       <div className="appBody">
         <div className="marketContainer">
@@ -228,7 +208,7 @@ function App() {
 
             <div className="col-md-4">
               <div
-                onClick={() => openStakingRugPullModal(true, "1000%")} //should be dream pool. o another staking modal
+                onClick={() => openStakingModal(true, "1000%")} //should be dream pool. o another staking modal
                 className="marketOption"
               >
                 <div className="glyphContainer hoverButton">
@@ -297,17 +277,6 @@ function App() {
           amount={amount}
           setAmount={setAmount}
           stakePleg={stakePleg}
-          flexible={flexible}
-        />
-      )}
-      {showStakeModal && (
-        <StakeModalRug
-          onClose={() => setShowStakeModal(false)}
-          stakingLength={stakingLength}
-          stakingPercent={stakingPercent}
-          amount={amount}
-          setAmount={setAmount}
-          stakePlegRugPull={stakePlegRugPull}
           flexible={flexible}
         />
       )}
