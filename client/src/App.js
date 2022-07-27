@@ -4,6 +4,7 @@ import { ethers } from "ethers";
 import artifacts from "./artifacts/contracts/staking.sol/Staking.json";  
 import NavBar from "./components/NavBar.jsx";
 import StakeModal from "./components/StakeModal.jsx";
+import StakeModalRug from "./components/StakeModalRug.jsx";
 import { Bank, PiggyBank, Coin } from "react-bootstrap-icons";
 
 const CONTRACT_ADDRESS = "0x20d38bb7e2B284aA8196Fd2ad82c9d42Ee4f6438";
@@ -201,7 +202,7 @@ function App() {
 
             <div className="col-md-4">
               <div
-                onClick={() => openStakingModal(true, "1000%")} 
+                onClick={() => openStakingRugPullModal(true, "1000%")} 
                 className="marketOption"
               >
                 <div className="glyphContainer hoverButton">
@@ -270,6 +271,17 @@ function App() {
           amount={amount}
           setAmount={setAmount}
           stakePleg={stakePleg}
+          flexible={flexible}
+        />
+      )}
+      {showStakeModal && (
+        <StakeModalRug
+          onClose={() => setShowStakeModal(false)}
+          stakingLength={stakingLength}
+          stakingPercent={stakingPercent}
+          amount={amount}
+          setAmount={setAmount}
+          stakePlegRugPull={stakePlegRugPull}
           flexible={flexible}
         />
       )}
